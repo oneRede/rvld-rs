@@ -27,15 +27,15 @@ fn assert(con: bool) {
 // 	return
 // }
 
-pub fn read_ehdr(data: &mut Vec<u8>) -> Ehdr {
-    return unsafe{*(data.as_mut_ptr() as *mut Ehdr)}
+pub fn read_ehdr(data: &[u8]) -> Ehdr {
+    return unsafe{*(data.as_ptr() as *mut Ehdr)}
 }
 
-pub fn read_shdr(data: &mut Vec<u8>) -> Shdr {
-    return unsafe{*(data.as_mut_ptr() as *mut Shdr)}
+pub fn read_shdr(data: &[u8]) -> Shdr {
+    return unsafe{*(data.as_ptr() as *const Shdr)}
 }
 
 pub fn read<T: Copy>(data: &mut [u8]) -> T {
-    return unsafe{*(data.as_mut_ptr() as *mut T)}
+    return unsafe{*(data.as_ptr() as *const T)}
 
 }
