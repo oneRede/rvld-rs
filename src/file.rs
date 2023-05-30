@@ -2,13 +2,13 @@ use std::fs::File;
 use std::io::prelude::*;
 
 #[allow(dead_code)]
-pub struct _ElfFile {
-    pub name: &'static str,
+pub struct _ElfFile<'a> {
+    pub name: &'a str,
     pub contents: &'static [u8]
 }
 
 #[allow(dead_code)]
-fn must_new_file(file_name: &'static str) -> _ElfFile{
+pub fn must_new_file(file_name: &str) -> _ElfFile{
     let mut f = File::open(&file_name).unwrap();
     let mut buffer = Vec::new();
 

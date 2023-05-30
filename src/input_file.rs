@@ -5,13 +5,13 @@ use crate::magic::check_magic;
 use crate::utils::{fatal, read_ehdr, read_shdr};
 
 #[allow(dead_code)]
-struct InputFile {
-    file: _ElfFile,
-    elf_sections: Vec<Shdr>,
+pub struct InputFile<'a> {
+    pub file: _ElfFile<'a>,
+    pub elf_sections: Vec<Shdr>,
 }
 
 #[allow(dead_code)]
-fn new_input_file(file: _ElfFile) -> InputFile {
+pub fn new_input_file(file: _ElfFile) -> InputFile {
     let mut f = InputFile {
         file: file,
         elf_sections: Vec::new(),
@@ -32,7 +32,6 @@ fn new_input_file(file: _ElfFile) -> InputFile {
         num_sections = shdr.size as i64;
     }
 
-    f.elf_sections.push(shdr);
     for _ in 0..num_sections {
         let contents = &contents[SHDR_SIZE..];
         let shdr: Shdr = read_shdr(contents);

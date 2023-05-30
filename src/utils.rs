@@ -16,18 +16,11 @@ fn must_no(err: &str) {
 }
 
 #[allow(dead_code)]
-fn assert(con: bool) {
+pub fn assert(con: bool) {
     if !con {
         fatal("assert failed")
     }
 }
-
-// func Read[T any](data []byte) (val T) {
-// 	reader := bytes.NewReader(data)
-// 	err := binary.Read(reader, binary.LittleEndian, &val)
-// 	MustNo(err)
-// 	return
-// }
 
 #[allow(dead_code)]
 pub fn read_ehdr(data: &[u8]) -> Ehdr {
