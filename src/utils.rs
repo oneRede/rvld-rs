@@ -7,6 +7,7 @@ pub fn fatal(v: &str) {
     exit(1);
 }
 
+#[allow(dead_code)]
 fn must_no(err: &str) {
     if err == "nil" {
         fatal(err
@@ -14,6 +15,7 @@ fn must_no(err: &str) {
     }
 }
 
+#[allow(dead_code)]
 fn assert(con: bool) {
     if !con {
         fatal("assert failed")
@@ -27,14 +29,17 @@ fn assert(con: bool) {
 // 	return
 // }
 
+#[allow(dead_code)]
 pub fn read_ehdr(data: &[u8]) -> Ehdr {
     return unsafe{*(data.as_ptr() as *mut Ehdr)}
 }
 
+#[allow(dead_code)]
 pub fn read_shdr(data: &[u8]) -> Shdr {
     return unsafe{*(data.as_ptr() as *const Shdr)}
 }
 
+#[allow(dead_code)]
 pub fn read<T: Copy>(data: &mut [u8]) -> T {
     return unsafe{*(data.as_ptr() as *const T)}
 

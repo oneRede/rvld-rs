@@ -1,7 +1,5 @@
-use std::num;
-
-use crate::elf::{EHDR_SIZE, SHDR_SIZE};
 use crate::elf::{Ehdr, Shdr};
+use crate::elf::{EHDR_SIZE, SHDR_SIZE};
 use crate::file::_ElfFile;
 use crate::magic::check_magic;
 use crate::utils::{fatal, read_ehdr, read_shdr};
@@ -12,7 +10,8 @@ struct InputFile {
     elf_sections: Vec<Shdr>,
 }
 
-fn new_input_file(file: _ElfFile) -> InputFile{
+#[allow(dead_code)]
+fn new_input_file(file: _ElfFile) -> InputFile {
     let mut f = InputFile {
         file: file,
         elf_sections: Vec::new(),
