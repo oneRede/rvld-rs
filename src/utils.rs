@@ -1,6 +1,6 @@
 use std::{process::exit};
 
-use crate::elf::{Ehdr, Shdr};
+use crate::elf::{Ehdr, Shdr, Sym};
 
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
@@ -30,6 +30,11 @@ pub fn read_ehdr(data: &[u8]) -> Ehdr {
 #[allow(dead_code)]
 pub fn read_shdr(data: &[u8]) -> Shdr {
     return unsafe{*(data.as_ptr() as *const Shdr)}
+}
+
+#[allow(dead_code)]
+pub fn read_sym(data: &[u8]) -> Sym {
+    return unsafe{*(data.as_ptr() as *const Sym)}
 }
 
 #[allow(dead_code)]
