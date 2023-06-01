@@ -5,7 +5,7 @@ pub const EHDR_SIZE: usize = mem::size_of::<Ehdr>();
 #[allow(dead_code)]
 pub const SHDR_SIZE: usize = mem::size_of::<Shdr>();
 #[allow(dead_code)]
-pub const Sym_Size: usize = mem::size_of::<Sym>();
+pub const SYM_SIZE: usize = mem::size_of::<Sym>();
 
 #[allow(dead_code)]
 #[derive(Clone, Copy)]

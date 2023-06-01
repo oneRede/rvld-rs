@@ -1,5 +1,5 @@
 use crate::elf::{Ehdr, Shdr, Sym};
-use crate::elf::{Sym_Size, EHDR_SIZE, SHDR_SIZE};
+use crate::elf::{SYM_SIZE, EHDR_SIZE, SHDR_SIZE};
 use crate::file::ElfFile;
 use crate::magic::check_magic;
 use crate::utils::{fatal, read_ehdr, read_shdr, read_sym};
@@ -77,10 +77,10 @@ impl<'a> InputFile<'a> {
     #[allow(dead_code)]
     pub fn fillup_elf_syms(&mut self, shdr: Shdr) {
         let mut bs = self.get_bytes_from_shdr(&shdr);
-        let nums = bs.len() / Sym_Size;
+        let nums = bs.len() / SYM_SIZE;
         for _ in 0..nums {
-            self.elf_syms.push(read_sym(&bs[..Sym_Size]));
-            bs = &bs[Sym_Size..]
+            self.elf_syms.push(read_sym(&bs[..SYM_SIZE]));
+            bs = &bs[SYM_SIZE..]
         }
     }
 
