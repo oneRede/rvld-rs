@@ -60,6 +60,8 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
 impl<'a> InputFile<'a> {
     fn get_bytes_from_shdr(&self, shdr: &Shdr) -> &'a [u8] {
         let end = (shdr.offset + shdr.size) as usize;
+        println!("{:?}", self.file.contents.len());
+        println!("{:?}", end);
         if self.file.contents.len() < end {
             fatal(&format!(
                 "section header is out of range: {:?}",

@@ -24,7 +24,8 @@ pub fn assert(con: bool) {
 
 #[allow(dead_code)]
 pub fn read_ehdr(data: &[u8]) -> Ehdr {
-    return unsafe{*(data.as_ptr() as *mut Ehdr)}
+    let size = std::mem::size_of::<Ehdr>();
+    return unsafe{*(data[..size].as_ptr() as *mut Ehdr)}
 }
 
 #[allow(dead_code)]

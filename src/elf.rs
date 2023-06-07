@@ -8,10 +8,11 @@ pub const SHDR_SIZE: usize = mem::size_of::<Shdr>();
 pub const SYM_SIZE: usize = mem::size_of::<Sym>();
 
 #[allow(dead_code)]
-#[derive(Clone, Copy)]
+#[repr(C)]
+#[derive(Clone, Copy, Debug)]
 pub struct Ehdr {
     pub ident: [u8; 16],
-    pub tehdr_ype: u16,
+    pub hdr_type: u16,
     pub machine: u16,
     pub version: u32,
     pub entry: u64,
@@ -26,6 +27,7 @@ pub struct Ehdr {
     pub sh_strndx: u16,
 }
 #[allow(dead_code)]
+#[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Shdr {
     pub name: u32,
@@ -40,6 +42,7 @@ pub struct Shdr {
     pub ent_size: u64,
 }
 #[allow(dead_code)]
+#[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Sym {
     pub name: u32,
@@ -48,4 +51,11 @@ pub struct Sym {
     pub shndx: u16,
     pub val: u64,
     pub size: u64,
+}
+
+pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str{
+    let sep = 0u8;
+    let offset = offset as usize;
+    let len = str_tab.binary_search(&sep).unwrap();
+    return std::str::from_utf8(&str_tab[offset..(offset + len)]).unwrap();
 }

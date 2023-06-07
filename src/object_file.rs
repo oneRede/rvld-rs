@@ -1,15 +1,16 @@
-use crate::{elf::Shdr, input_file::InputFile};
+use crate::{elf::Shdr, input_file::{InputFile, new_input_file}, file::ElfFile};
 
 const SHT_SYMTAB: u16 = 2;
 
 #[allow(dead_code)]
-struct ObjectFile<'a> {
-    input_file: InputFile<'a>,
-    symtab_sec: Option<Shdr>,
+pub struct ObjectFile<'a> {
+    pub input_file: InputFile<'a>,
+    pub symtab_sec: Option<Shdr>,
 }
 
 #[allow(dead_code)]
-fn new_object_file(input_file: InputFile) -> ObjectFile {
+pub fn new_object_file(elf_file: ElfFile) -> ObjectFile {
+    let input_file = new_input_file(elf_file);
     let object_file = ObjectFile {
         input_file: input_file,
         symtab_sec: None,
@@ -19,7 +20,7 @@ fn new_object_file(input_file: InputFile) -> ObjectFile {
 
 impl<'a> ObjectFile<'a> {
     #[allow(dead_code)]
-    fn parse(&mut self) {
+    pub fn parse(&mut self) {
         self.symtab_sec = self.input_file.find_section(SHT_SYMTAB as u32);
         match self.symtab_sec {
             None => {}
