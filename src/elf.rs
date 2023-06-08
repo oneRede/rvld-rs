@@ -54,8 +54,23 @@ pub struct Sym {
 }
 
 pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str{
-    let sep = 0u8;
     let offset = offset as usize;
-    let len = str_tab.binary_search(&sep).unwrap();
+    let len = binary_search(&str_tab[offset..], 0).unwrap();
     return std::str::from_utf8(&str_tab[offset..(offset + len)]).unwrap();
+}
+
+fn binary_search(data: &[u8], sep: u8) -> Option<usize>{
+    for i in 0..data.len() {
+        if data[i] == sep {
+            return Some(i)
+        }
+    }
+    None
+}
+
+#[test]
+fn test_binary_seach(){
+    let data = &[1u8,2,3,4,5,6];
+    let sep = 2u8;
+    assert_eq!(binary_search(data, sep), Some(1));
 }

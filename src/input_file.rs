@@ -42,8 +42,10 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
         num_sections = shdr.size as i64;
     }
 
-    for _ in 0..num_sections {
-        let contents = &contents[SHDR_SIZE..];
+    f.elf_sections.push(shdr);
+    for i in 0..(num_sections - 1) {
+        let idx_shdr = (i + 1) as usize * SHDR_SIZE;
+        let contents = &contents[idx_shdr..];
         let shdr: Shdr = read_shdr(contents);
         f.elf_sections.push(shdr);
         num_sections -= 1;
@@ -60,8 +62,6 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
 impl<'a> InputFile<'a> {
     fn get_bytes_from_shdr(&self, shdr: &Shdr) -> &'a [u8] {
         let end = (shdr.offset + shdr.size) as usize;
-        println!("{:?}", self.file.contents.len());
-        println!("{:?}", end);
         if self.file.contents.len() < end {
             fatal(&format!(
                 "section header is out of range: {:?}",
