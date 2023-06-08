@@ -25,9 +25,7 @@ fn main() {
     // assert!(object_file.input_file.elf_sections.len() == 11);
     // assert!(object_file.input_file.first_global == Some(12));
     // assert!(object_file.input_file.elf_syms.len() == 12);
-    println!("{:?}", object_file.input_file.elf_syms.len());
     for sym in object_file.input_file.elf_syms.into_iter() {
-        println!("{:?}", sym.name);
         println!("{:?}", elf_get_name(object_file.input_file.symbol_strtab.unwrap(), sym.name))
     }
 }
