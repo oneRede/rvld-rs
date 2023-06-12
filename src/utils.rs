@@ -39,6 +39,11 @@ pub fn read_sym(data: &[u8]) -> Sym {
 }
 
 #[allow(dead_code)]
+pub fn read_u16(data: &[u8]) -> u16 {
+    return unsafe{*(data.as_ptr() as *const u16)}
+}
+
+#[allow(dead_code)]
 pub fn read<T: Copy>(data: &mut [u8]) -> T {
     return unsafe{*(data.as_ptr() as *const T)}
 

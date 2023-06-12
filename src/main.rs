@@ -11,6 +11,9 @@ mod input_file;
 mod magic;
 mod object_file;
 mod utils;
+mod context;
+mod file_type;
+mod machine_type;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
