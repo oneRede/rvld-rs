@@ -1,15 +1,15 @@
 use crate::machine_type::{MachineType, MACHINE_TYPE_NONE};
 
 #[allow(dead_code)]
-struct ContextArgs {
-    output: &'static str,
-    emulation: MachineType,
-    library_paths: Option<Vec<&'static str>>,
+pub struct ContextArgs {
+    pub output: &'static str,
+    pub emulation: MachineType,
+    pub library_paths: Vec<String>,
 }
 
 #[allow(dead_code)]
-struct Context {
-    args: ContextArgs,
+pub struct Context {
+    pub args: ContextArgs,
 }
 
 #[allow(dead_code)]
@@ -18,7 +18,7 @@ fn new_context() -> Context {
         args: ContextArgs {
             output: "a.out",
             emulation: MACHINE_TYPE_NONE,
-            library_paths: None,
+            library_paths: vec![],
         },
     }
 }
