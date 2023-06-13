@@ -68,7 +68,6 @@ fn parse_args<'a>(mut ctx: Context) -> Vec<&'a str> {
                 unsafe { *_args = &(*args.get())[2..] }
                 return true;
             }
-
             let mut prefix = String::from(&opt);
             if name.len() > 1 {
                 prefix += "=";
@@ -93,7 +92,6 @@ fn parse_args<'a>(mut ctx: Context) -> Vec<&'a str> {
     };
 
     let mut remaining: Vec<&str> = vec![];
-
     loop {
         if unsafe { (*_args).len() } > 0 {
             break;
