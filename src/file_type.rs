@@ -1,5 +1,5 @@
 use crate::magic::check_magic;
-use crate::utils::read_u16;
+use crate::utils::read;
 
 pub type FileType = u8;
 pub const FILE_TYPE_UNKNOWN: FileType = 0;
@@ -13,7 +13,7 @@ pub fn get_file_type(contents: &[u8]) -> FileType {
     }
 
     if check_magic(contents) {
-        let et = read_u16(&contents[16..]);
+        let et = read(&contents[16..]);
         match et {
             1u16 => return FILE_TYPE_OBJECT,
             _ => {}

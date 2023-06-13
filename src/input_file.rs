@@ -2,7 +2,7 @@ use crate::elf::{Ehdr, Shdr, Sym};
 use crate::elf::{SYM_SIZE, EHDR_SIZE, SHDR_SIZE};
 use crate::file::ElfFile;
 use crate::magic::check_magic;
-use crate::utils::{fatal, read_ehdr, read_shdr, read_sym};
+use crate::utils::{fatal, read};
 
 const SHN_XINDEX: u16 = 0xffff;
 
@@ -33,9 +33,9 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
     if !check_magic(f.file.contents) {
         fatal("not an ELF file")
     }
-    let ehdr: Ehdr = read_ehdr(f.file.contents);
+    let ehdr: Ehdr = read(f.file.contents);
     let contents = &f.file.contents[ehdr.sh_off as usize..];
-    let shdr: Shdr = read_shdr(contents);
+    let shdr: Shdr = read(contents);
 
     let mut num_sections = ehdr.sh_num as i64;
     if num_sections == 0 {
@@ -46,7 +46,7 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
     for i in 0..(num_sections - 1) {
         let idx_shdr = (i + 1) as usize * SHDR_SIZE;
         let contents = &contents[idx_shdr..];
-        let shdr: Shdr = read_shdr(contents);
+        let shdr: Shdr = read(contents);
         f.elf_sections.push(shdr);
         num_sections -= 1;
     }
@@ -81,7 +81,7 @@ impl<'a> InputFile<'a> {
         let mut bs = self.get_bytes_from_shdr(&shdr);
         let nums = bs.len() / SYM_SIZE;
         for _ in 0..nums {
-            self.elf_syms.push(read_sym(&bs[..SYM_SIZE]));
+            self.elf_syms.push(read(&bs[..SYM_SIZE]));
             bs = &bs[SYM_SIZE..]
         }
     }

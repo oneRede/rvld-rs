@@ -12,13 +12,15 @@ pub struct Context {
     pub args: ContextArgs,
 }
 
-#[allow(dead_code)]
-fn new_context() -> Context {
-    Context {
-        args: ContextArgs {
-            output: "a.out",
-            emulation: MACHINE_TYPE_NONE,
-            library_paths: vec![],
-        },
+impl Context {
+    #[allow(dead_code)]
+    pub fn new() -> Self{
+        Context {
+            args: ContextArgs {
+                output: "a.out",
+                emulation: MACHINE_TYPE_NONE,
+                library_paths: vec![],
+            },
+        }
     }
 }

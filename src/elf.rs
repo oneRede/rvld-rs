@@ -53,12 +53,14 @@ pub struct Sym {
     pub size: u64,
 }
 
+#[allow(dead_code)]
 pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str{
     let offset = offset as usize;
     let len = binary_search(&str_tab[offset..], 0).unwrap();
     return std::str::from_utf8(&str_tab[offset..(offset + len)]).unwrap();
 }
 
+#[allow(dead_code)]
 fn binary_search(data: &[u8], sep: u8) -> Option<usize>{
     for i in 0..data.len() {
         if data[i] == sep {

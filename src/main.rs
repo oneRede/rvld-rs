@@ -1,11 +1,4 @@
-use std::{cell::UnsafeCell, env, fmt::format, process::exit};
-
-use context::Context;
-use elf::elf_get_name;
-use file::must_new_file;
-use machine_type::MACHINE_TYPE_RISCV64;
-use object_file::new_object_file;
-use utils::fatal;
+use std::{cell::UnsafeCell, env, process::exit};
 
 mod context;
 mod elf;
@@ -17,29 +10,39 @@ mod magic;
 mod object_file;
 mod utils;
 
+use context::Context;
+use file::must_new_file;
+use machine_type::MACHINE_TYPE_RISCV64;
+use utils::fatal;
+use crate::machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE};
+
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    println!("{:?}", args);
-    if args.len() < 2 {
-        fatal("wrong args");
+    let mut ctx = Context::new();
+    let remaining = parse_args(&mut ctx);
+
+    if ctx.args.emulation == MACHINE_TYPE_NONE {
+        for file_name in &remaining {
+            if file_name.starts_with("-") {
+                continue;
+            }
+
+            let file = must_new_file(file_name);
+            ctx.args.emulation = get_machine_type_from_contents(file.contents);
+
+            if ctx.args.emulation != MACHINE_TYPE_NONE {
+                break;
+            }
+        }
     }
 
-    let elf_file = must_new_file(&args[1]);
-    let mut object_file = new_object_file(elf_file);
-    object_file.parse();
-    // assert!(object_file.input_file.elf_sections.len() == 11);
-    // assert!(object_file.input_file.first_global == Some(12));
-    // assert!(object_file.input_file.elf_syms.len() == 12);
-    for sym in object_file.input_file.elf_syms.into_iter() {
-        println!(
-            "{:?}",
-            elf_get_name(object_file.input_file.symbol_strtab.unwrap(), sym.name)
-        )
+    if ctx.args.emulation != MACHINE_TYPE_RISCV64 {
+        fatal("unknown emulation type");
     }
+    println!("{:?}", remaining);
 }
 
 #[allow(dead_code)]
-fn parse_args<'a>(mut ctx: Context) -> Vec<&'a str> {
+fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
     let f_args: Vec<String> = env::args().collect();
     let s_args: &[String] = Box::leak(Box::new(f_args));
     let args: UnsafeCell<&[String]> = UnsafeCell::new(s_args);
