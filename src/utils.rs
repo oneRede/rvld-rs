@@ -1,7 +1,5 @@
 use std::{process::exit};
 
-use crate::elf::{Ehdr, Shdr, Sym};
-
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
     exit(1);
