@@ -13,5 +13,7 @@ int main(void) {
     return 0;
 }
 EOF
+riscv64-linux-gnu-gcc -B. -static "$t"/a.o -o "$t"/out
 
-./target/debug/rvld-rs "$t"/a.o
+# riscv64-linux-gnu-gcc -B. -static /home/rede/git/rvld-rs/out/tests/hello/a.o -o /home/rede/git/rvld-rs/out/tests/hello/out
+# ./target/debug/rvld-rs "$t"/a.o-B. -static /home/rede/git/rvld-rs/out/tests/hello/a.o -o /home/rede/git/rvld-rs/out/tests/hello/out

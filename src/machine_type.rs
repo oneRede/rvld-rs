@@ -5,7 +5,7 @@ use crate::{
 pub type MachineType = u8;
 
 pub const MACHINE_TYPE_NONE: MachineType = 0;
-pub const MACHINE_TYPE_RISCV64: MachineType = 0;
+pub const MACHINE_TYPE_RISCV64: MachineType = 1;
 
 #[allow(dead_code)]
 pub fn get_machine_type_from_contents(contents: &[u8]) -> MachineType {

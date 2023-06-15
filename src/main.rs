@@ -10,11 +10,11 @@ mod magic;
 mod object_file;
 mod utils;
 
+use crate::machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE};
 use context::Context;
 use file::must_new_file;
 use machine_type::MACHINE_TYPE_RISCV64;
 use utils::fatal;
-use crate::machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE};
 
 fn main() {
     let mut ctx = Context::new();
@@ -42,8 +42,9 @@ fn main() {
 }
 
 #[allow(dead_code)]
-fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
+fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
     let f_args: Vec<String> = env::args().collect();
+    
     let s_args: &[String] = Box::leak(Box::new(f_args));
     let args: UnsafeCell<&[String]> = UnsafeCell::new(s_args);
 
@@ -54,21 +55,20 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
         if name.len() == 1 {
             return vec!["-".to_string() + name];
         }
-        return vec!["-".to_string() + &name, "-".to_string() + &name];
+        return vec!["-".to_string() + &name, "--".to_string() + &name];
     };
 
     let arg = UnsafeCell::new("");
+    let _arg = arg.get();
+
     let read_arg = |name: &str| -> bool {
-        let _arg = arg.get();
-        for opt in dashes(name) {
-            let _args = args.get();
+        for opt in dashes(name) {   
             if unsafe { (*_args).get(0) }.unwrap() == &opt {
-                if unsafe { (*args.get()).len() } == 1 {
+                if unsafe { (*_args).len() } == 1 {
                     fatal(&format!("option -{}: argument missing", name));
                 }
-
                 unsafe { *_arg = { (*_args).get(1) }.unwrap() };
-                unsafe { *_args = &(*args.get())[2..] }
+                unsafe { *_args = &(*_args)[2..] }
                 return true;
             }
             let mut prefix = String::from(&opt);
@@ -76,27 +76,27 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
                 prefix += "=";
             }
             if unsafe { (*_args).get(0) }.unwrap().starts_with(&prefix) {
-                unsafe { *_arg = &{ (*_args).get(1) }.unwrap()[prefix.len()..] };
-                unsafe { *_args = &(*args.get())[1..] }
+                unsafe { *_arg = &{ (*_args).get(0) }.unwrap()[prefix.len()..]};
+                unsafe { *_args = &(*_args)[1..] }
                 return true;
             }
         }
-        false
+        return false
     };
 
     let read_flag = |name: &str| -> bool {
         for opt in dashes(name) {
             if unsafe { (*_args).get(0) }.unwrap() == &opt {
-                unsafe { *_args = &(*args.get())[1..] }
+                unsafe { *_args = &(*_args)[1..] }
                 return true;
             }
         }
-        false
+        return false
     };
 
-    let mut remaining: Vec<&str> = vec![];
+    let mut remaining: Vec<String> = vec![];
     loop {
-        if unsafe { (*_args).len() } > 0 {
+        if unsafe { (*args.get()).len() } < 1 {
             break;
         }
         if read_flag("help") {
@@ -104,12 +104,12 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
             exit(0);
         }
         if read_arg("o") || read_arg("output") {
-            ctx.args.output = unsafe { *arg.get() };
-        } else if read_arg("v") || read_arg("version") {
+            ctx.args.output = String::from(unsafe { *arg.get() });
+        } else if read_flag("v") || read_flag("version") {
             format!("rvld {}\n", "");
             exit(0);
         } else if read_arg("m") {
-            if unsafe { *arg.get() } == "elf64riscv" {
+            if unsafe { *_arg } == "elf64lriscv" {
                 ctx.args.emulation = MACHINE_TYPE_RISCV64;
             } else {
                 fatal(&format!("unknown -m argument: {}", unsafe { *arg.get() }));
@@ -117,31 +117,32 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<&'a str> {
         } else if read_arg("L") {
             ctx.args
                 .library_paths
-                .push("".to_string() + unsafe { *arg.get() });
+                .push("".to_string() + &unsafe { *arg.get() });
         } else if read_arg("l") {
-            ctx.args
-                .library_paths
-                .push("-l".to_string() + unsafe { *arg.get() });
+            remaining.push("-l".to_string() + &unsafe { *arg.get() });
         } else if read_arg("sysroot")
-            || read_arg("static")
+            || read_flag("static")
             || read_arg("plugin")
-            || read_arg("as-needed")
-            || read_arg("start-group")
+            || read_arg("plugin-opt")
+            || read_flag("as-needed")
+            || read_flag("start-group")
+            || read_flag("end-group")
             || read_arg("hash-style")
             || read_arg("build-id")
-            || read_arg("s")
-            || read_arg("no-relax")
+            || read_flag("s")
+            || read_flag("no-relax")
+            || read_flag("z")
         {
-            todo!()
+            // ignore
         } else {
-            if unsafe { (*_args).get(0) }.unwrap() == "-" {
+            if unsafe { (*_args).get(0) }.unwrap().starts_with("-") {
                 fatal(&format!("unknown command line option: {}", unsafe {
-                    *arg.get()
+                    *_arg
                 }));
             }
-            remaining.push(unsafe { *arg.get() });
             let _args = args.get();
-            unsafe { *_args = &(*args.get())[1..] }
+            remaining.push(String::from(unsafe { *_args }.get(0).unwrap()));
+            unsafe { *_args = &(*_args)[1..] }
         }
     }
     return remaining;
