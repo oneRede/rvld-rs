@@ -3,8 +3,9 @@ use crate::utils::read;
 
 pub type FileType = u8;
 pub const FILE_TYPE_UNKNOWN: FileType = 0;
-pub const FILE_TYPE_EMPTY: FileType = 0;
-pub const FILE_TYPE_OBJECT: FileType = 0;
+pub const FILE_TYPE_EMPTY: FileType = 1;
+pub const FILE_TYPE_OBJECT: FileType = 2;
+pub const FILE_TYPE_ARCHIVE: FileType = 3;
 
 #[allow(dead_code)]
 pub fn get_file_type(contents: &[u8]) -> FileType {

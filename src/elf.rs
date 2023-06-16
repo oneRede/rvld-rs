@@ -6,6 +6,8 @@ pub const EHDR_SIZE: usize = mem::size_of::<Ehdr>();
 pub const SHDR_SIZE: usize = mem::size_of::<Shdr>();
 #[allow(dead_code)]
 pub const SYM_SIZE: usize = mem::size_of::<Sym>();
+#[allow(dead_code)]
+pub const AR_HDR_SIZE: usize = mem::size_of::<ArHdr>();
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -54,25 +56,92 @@ pub struct Sym {
 }
 
 #[allow(dead_code)]
-pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str{
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct ArHdr<'a> {
+    name: &'a [u8; 16],
+    date: &'a [u8; 12],
+    uid: &'a [u8; 6],
+    gid: &'a [u8; 6],
+    mode: &'a [u8; 8],
+    size: &'a [u8; 10],
+    fmag: &'a [u8; 2],
+}
+
+#[allow(dead_code)]
+pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str {
     let offset = offset as usize;
     let len = binary_search(&str_tab[offset..], 0).unwrap();
     return std::str::from_utf8(&str_tab[offset..(offset + len)]).unwrap();
 }
 
 #[allow(dead_code)]
-fn binary_search(data: &[u8], sep: u8) -> Option<usize>{
+fn binary_search(data: &[u8], sep: u8) -> Option<usize> {
     for i in 0..data.len() {
         if data[i] == sep {
-            return Some(i)
+            return Some(i);
         }
     }
     None
 }
 
+impl<'a> ArHdr<'a> {
+    #[allow(dead_code)]
+    pub fn has_prefix(&self, s: &str) -> bool {
+        return s.starts_with(std::str::from_utf8(self.name).unwrap());
+    }
+
+    #[allow(dead_code)]
+    pub fn is_str_tab(&self) -> bool {
+        return self.has_prefix("// ");
+    }
+
+    #[allow(dead_code)]
+    pub fn is_symtab(&self) -> bool {
+        return self.has_prefix("/ ") || self.has_prefix("/SYM64");
+    }
+
+    #[allow(dead_code)]
+    pub fn get_size(&self) -> usize {
+        let size = str::parse::<usize>(
+            std::str::from_utf8(self.size)
+                .unwrap()
+                .strip_suffix(" ")
+                .unwrap(),
+        )
+        .unwrap();
+        size
+    }
+
+    #[allow(dead_code)]
+    pub fn read_name(&self, str_tab: &'a str) -> &'a str {
+        if unsafe {
+            std::str::from_utf8(std::slice::from_raw_parts(
+                (self as *const ArHdr) as *const u8,
+                60,
+            ))
+            .unwrap()
+            .starts_with("// ")
+        } {
+            let start = str::parse::<usize>(
+                std::str::from_utf8(self.size)
+                    .unwrap()
+                    .strip_suffix(" ")
+                    .unwrap(),
+            )
+            .unwrap();
+        let end = start + str_tab.rfind("/\n").unwrap();
+
+        return &str_tab[start..end]
+        }
+        let end: usize = std::str::from_utf8(self.name).unwrap().rfind("\\").unwrap();
+        return std::str::from_utf8(&self.name[..end]).unwrap();
+    }
+}
+
 #[test]
-fn test_binary_seach(){
-    let data = &[1u8,2,3,4,5,6];
+fn test_binary_seach() {
+    let data = &[1u8, 2, 3, 4, 5, 6];
     let sep = 2u8;
     assert_eq!(binary_search(data, sep), Some(1));
 }

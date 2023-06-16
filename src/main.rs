@@ -8,7 +8,9 @@ mod input_file;
 mod machine_type;
 mod magic;
 mod object_file;
+mod archive;
 mod utils;
+
 
 use crate::machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE};
 use context::Context;
