@@ -1,4 +1,8 @@
-use crate::{elf::Shdr, input_file::{InputFile, new_input_file}, file::ElfFile};
+use crate::{
+    elf::Shdr,
+    file::ElfFile,
+    input_file::{new_input_file, InputFile},
+};
 
 const SHT_SYMTAB: u16 = 2;
 

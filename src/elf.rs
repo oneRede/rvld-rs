@@ -130,9 +130,9 @@ impl<'a> ArHdr<'a> {
                     .unwrap(),
             )
             .unwrap();
-        let end = start + str_tab.rfind("/\n").unwrap();
+            let end = start + str_tab.rfind("/\n").unwrap();
 
-        return &str_tab[start..end]
+            return &str_tab[start..end];
         }
         let end: usize = std::str::from_utf8(self.name).unwrap().rfind("\\").unwrap();
         return std::str::from_utf8(&self.name[..end]).unwrap();

@@ -1,4 +1,4 @@
-use std::{process::exit};
+use std::process::exit;
 
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
@@ -8,8 +8,7 @@ pub fn fatal(v: &str) {
 #[allow(dead_code)]
 fn must_no(err: &str) {
     if err == "nil" {
-        fatal(err
-        )
+        fatal(err)
     }
 }
 
@@ -22,5 +21,22 @@ pub fn assert(con: bool) {
 
 #[allow(dead_code)]
 pub fn read<T: Copy>(data: &[u8]) -> T {
-    return unsafe{*(data.as_ptr() as *const T)}
+    return unsafe { *(data.as_ptr() as *const T) };
+}
+
+#[allow(dead_code)]
+pub fn remove_prefix(s: &str, prefix: &str) -> (String, bool) {
+    if s.starts_with(prefix) {
+        let s = String::from(s.strip_prefix(prefix).unwrap());
+        return (s, true);
+    }
+    return (s.to_string(), false);
+}
+
+#[test]
+fn test_remove_prefix() {
+    let s = "1234567890".to_string();
+    let prefix = "123456";
+    let r = remove_prefix(&s, prefix);
+    println!("{:?}", r);
 }

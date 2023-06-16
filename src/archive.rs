@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[allow(dead_code)]
-fn read_archive_members(file: ElfFile) {
+pub fn read_archive_members(file: ElfFile) -> Vec<ElfFile> {
     assert!(get_file_type(file.contents) == FILE_TYPE_ARCHIVE);
 
     let mut pos: usize = 8;
@@ -32,7 +32,8 @@ fn read_archive_members(file: ElfFile) {
         elf_files.push(ElfFile {
             name: hdr.read_name(str_tab),
             contents: contents,
-            files: vec![&file as * const ElfFile],
+            files: vec![&file as *const ElfFile],
         });
     }
+    elf_files
 }

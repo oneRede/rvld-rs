@@ -28,3 +28,17 @@ pub fn get_machine_type_from_contents(contents: &[u8]) -> MachineType {
     }
     return MACHINE_TYPE_NONE;
 }
+
+pub struct MachineTypeStringer {
+    machine_type: MachineType,
+}
+
+impl MachineTypeStringer {
+    #[allow(dead_code)]
+    fn string(&self) -> &str {
+        match self.machine_type {
+            MACHINE_TYPE_RISCV64 => "risc64",
+            _ => "None",
+        }
+    }
+}

@@ -20,5 +20,9 @@ pub fn get_file_type(contents: &[u8]) -> FileType {
             _ => {}
         }
     }
+
+    if contents.starts_with("!<arch>\n".as_bytes()) {
+        return FILE_TYPE_ARCHIVE;
+    }
     return FILE_TYPE_UNKNOWN;
 }

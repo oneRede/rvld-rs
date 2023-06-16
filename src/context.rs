@@ -1,4 +1,7 @@
-use crate::{machine_type::{MachineType, MACHINE_TYPE_NONE}, object_file::ObjectFile};
+use crate::{
+    machine_type::{MachineType, MACHINE_TYPE_NONE},
+    object_file::ObjectFile,
+};
 
 #[allow(dead_code)]
 pub struct ContextArgs {
@@ -10,12 +13,12 @@ pub struct ContextArgs {
 #[allow(dead_code)]
 pub struct Context<'a> {
     pub args: ContextArgs,
-    pub objs: Vec<ObjectFile<'a>>
+    pub objs: Vec<ObjectFile<'a>>,
 }
 
 impl<'a> Context<'a> {
     #[allow(dead_code)]
-    pub fn new() -> Self{
+    pub fn new() -> Self {
         Context {
             args: ContextArgs {
                 output: "a.out".to_string(),

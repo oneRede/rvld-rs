@@ -1,18 +1,21 @@
 use std::{cell::UnsafeCell, env, process::exit};
 
+mod archive;
 mod context;
 mod elf;
 mod file;
 mod file_type;
+mod input;
 mod input_file;
 mod machine_type;
 mod magic;
 mod object_file;
-mod archive;
 mod utils;
 
-
-use crate::machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE};
+use crate::{
+    input::read_input_files,
+    machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE},
+};
 use context::Context;
 use file::must_new_file;
 use machine_type::MACHINE_TYPE_RISCV64;
@@ -40,13 +43,19 @@ fn main() {
     if ctx.args.emulation != MACHINE_TYPE_RISCV64 {
         fatal("unknown emulation type");
     }
-    println!("{:?}", remaining);
+
+    read_input_files(&mut ctx, remaining);
+    println!("{:?}", ctx.objs.len());
+
+    for obj in ctx.objs {
+        println!("{:?}", obj.input_file.file.name);
+    }
 }
 
 #[allow(dead_code)]
 fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
     let f_args: Vec<String> = env::args().collect();
-    
+
     let s_args: &[String] = Box::leak(Box::new(f_args));
     let args: UnsafeCell<&[String]> = UnsafeCell::new(s_args);
 
@@ -64,7 +73,7 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
     let _arg = arg.get();
 
     let read_arg = |name: &str| -> bool {
-        for opt in dashes(name) {   
+        for opt in dashes(name) {
             if unsafe { (*_args).get(0) }.unwrap() == &opt {
                 if unsafe { (*_args).len() } == 1 {
                     fatal(&format!("option -{}: argument missing", name));
@@ -78,12 +87,12 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
                 prefix += "=";
             }
             if unsafe { (*_args).get(0) }.unwrap().starts_with(&prefix) {
-                unsafe { *_arg = &{ (*_args).get(0) }.unwrap()[prefix.len()..]};
+                unsafe { *_arg = &{ (*_args).get(0) }.unwrap()[prefix.len()..] };
                 unsafe { *_args = &(*_args)[1..] }
                 return true;
             }
         }
-        return false
+        return false;
     };
 
     let read_flag = |name: &str| -> bool {
@@ -93,7 +102,7 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
                 return true;
             }
         }
-        return false
+        return false;
     };
 
     let mut remaining: Vec<String> = vec![];

@@ -1,5 +1,5 @@
 use crate::elf::{Ehdr, Shdr, Sym};
-use crate::elf::{SYM_SIZE, EHDR_SIZE, SHDR_SIZE};
+use crate::elf::{EHDR_SIZE, SHDR_SIZE, SYM_SIZE};
 use crate::file::ElfFile;
 use crate::magic::check_magic;
 use crate::utils::{fatal, read};
