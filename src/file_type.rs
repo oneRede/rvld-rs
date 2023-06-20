@@ -39,9 +39,9 @@ pub fn get_file_type(contents: &[u8]) -> FileType {
 // }
 
 #[allow(dead_code)]
-pub fn check_file_compatibility(ctx: &Context, elf_file: ElfFile){
+pub fn check_file_compatibility(emulation: u8, elf_file: &ElfFile){
     let mt = get_machine_type_from_contents(elf_file.contents);
-    if mt != ctx.args.emulation {
+    if mt != emulation {
         fatal("incompatible file type")
     }
 }

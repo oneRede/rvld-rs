@@ -28,31 +28,24 @@ pub fn read_input_files(ctx: &mut Context, remaining: Vec<String>) {
 #[allow(dead_code)]
 pub fn read_file<'a>(ctx: &mut Context<'a>, elf_file: ElfFile<'a>) {
     let ft = get_file_type(elf_file.contents);
+    let emulation: u8 = ctx.args.emulation;
     match ft {
         FILE_TYPE_OBJECT => {
-            ctx.objs.push(create_object_file(ctx, elf_file));
+            ctx.objs.push(create_object_file(emulation, elf_file));
         }
         FILE_TYPE_ARCHIVE => {
             for child in read_archive_members(elf_file) {
                 assert_eq!(get_file_type(child.contents), FILE_TYPE_OBJECT);
-                ctx.objs.push(create_object_file(ctx, child))
+                ctx.objs.push(create_object_file(emulation, child))
             }
         }
         _ => fatal("unkown file type!"),
     }
 }
 
-// func CreateObjectFile(ctx *Context, file *File, inLib bool) *ObjectFile {
-// 	CheckFileCompatibility(ctx, file)
-
-// 	obj := NewObjectFile(file, !inLib)
-// 	obj.Parse(ctx)
-// 	return obj
-// }
-
 #[allow(dead_code)]
-fn create_object_file<'a>(ctx :&'a Context,elf_file: ElfFile) -> ObjectFile<'a> {
-    check_file_compatibility(ctx, elf_file);
+fn create_object_file<'a>(emulation :u8,elf_file: ElfFile<'a>) -> ObjectFile<'a> {
+    check_file_compatibility(emulation, &elf_file);
     let mut obj = new_object_file(elf_file);
     obj.parse();
     obj
