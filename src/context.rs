@@ -1,6 +1,8 @@
+use std::{hash::Hash, collections::HashMap};
+
 use crate::{
     machine_type::{MachineType, MACHINE_TYPE_NONE},
-    object_file::ObjectFile,
+    object_file::ObjectFile, symbol::Symbol,
 };
 
 #[allow(dead_code)]
@@ -14,6 +16,7 @@ pub struct ContextArgs {
 pub struct Context<'a> {
     pub args: ContextArgs,
     pub objs: Vec<ObjectFile<'a>>,
+    pub symbol_map: HashMap<&'static str, Symbol<'a>>,
 }
 
 impl<'a> Context<'a> {
@@ -26,6 +29,7 @@ impl<'a> Context<'a> {
                 library_paths: vec![],
             },
             objs: vec![],
+            symbol_map: HashMap::new(),
         }
     }
 }

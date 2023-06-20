@@ -10,6 +10,8 @@ mod input_file;
 mod machine_type;
 mod magic;
 mod object_file;
+mod input_section;
+mod symbol;
 mod utils;
 
 use crate::{
@@ -54,7 +56,8 @@ fn main() {
 
 #[allow(dead_code)]
 fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
-    let f_args: Vec<String> = env::args().collect();
+    // let f_args: Vec<String> = env::args().collect();
+    let f_args: Vec<String> = vec!["./ld".to_string(), "-plugin".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/liblto_plugin.so".to_string(), "-plugin-opt=/usr/lib/gcc-cross/riscv64-linux-gnu/10/lto-wrapper".to_string(), "-plugin-opt=-fresolution=/tmp/ccnH96wF.res".to_string(), "-plugin-opt=-pass-through=-lgcc".to_string(), "-plugin-opt=-pass-through=-lgcc_eh".to_string(), "-plugin-opt=-pass-through=-lc".to_string(), "--sysroot=/".to_string(), "--build-id".to_string(), "-hash-style=gnu".to_string(), "--as-needed".to_string(), "-melf64lriscv".to_string(), "-static".to_string(), "-z".to_string(), "relro".to_string(), "-o".to_string(), "out/tests/hello/out".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/../../../../riscv64-linux-gnu/lib/crt1.o".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crti.o".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtbeginT.o".to_string(), "-L.".to_string(), "-L/usr/lib/gcc-cross/riscv64-linux-gnu/10".to_string(), "-L/usr/lib/gcc-cross/riscv64-linux-gnu/10/../../../../riscv64-linux-gnu/lib".to_string(), "-L/lib/riscv64-linux-gnu".to_string(), "-L/usr/lib/riscv64-linux-gnu".to_string(), "out/tests/hello/a.o".to_string(), "--start-group".to_string(), "-lgcc".to_string(), "-lgcc_eh".to_string(), "-lc".to_string(), "--end-group".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtend.o".to_string(), "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtn.o".to_string()];
 
     let s_args: &[String] = Box::leak(Box::new(f_args));
     let args: UnsafeCell<&[String]> = UnsafeCell::new(s_args);
