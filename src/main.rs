@@ -12,6 +12,9 @@ mod machine_type;
 mod magic;
 mod object_file;
 mod symbol;
+mod chunk;
+mod merged_section;
+mod section_fragment;
 mod utils;
 
 use crate::{
