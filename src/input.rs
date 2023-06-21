@@ -3,7 +3,9 @@ use std::cell::UnsafeCell;
 use crate::archive::read_archive_members;
 use crate::context::Context;
 use crate::file::{find_library, must_new_file, ElfFile};
-use crate::file_type::{get_file_type, FILE_TYPE_ARCHIVE, FILE_TYPE_OBJECT, check_file_compatibility};
+use crate::file_type::{
+    check_file_compatibility, get_file_type, FILE_TYPE_ARCHIVE, FILE_TYPE_OBJECT,
+};
 use crate::object_file::{new_object_file, ObjectFile};
 use crate::utils::{fatal, remove_prefix};
 
@@ -31,12 +33,13 @@ pub fn read_file<'a>(ctx: &mut Context<'a>, elf_file: ElfFile<'a>) {
     let emulation: u8 = ctx.args.emulation;
     match ft {
         FILE_TYPE_OBJECT => {
-            ctx.objs.push(create_object_file(emulation, elf_file));
+            ctx.objs
+                .push(create_object_file(emulation, elf_file, false));
         }
         FILE_TYPE_ARCHIVE => {
             for child in read_archive_members(elf_file) {
                 assert_eq!(get_file_type(child.contents), FILE_TYPE_OBJECT);
-                ctx.objs.push(create_object_file(emulation, child))
+                ctx.objs.push(create_object_file(emulation, child, true))
             }
         }
         _ => fatal("unkown file type!"),
@@ -44,9 +47,9 @@ pub fn read_file<'a>(ctx: &mut Context<'a>, elf_file: ElfFile<'a>) {
 }
 
 #[allow(dead_code)]
-fn create_object_file<'a>(emulation :u8,elf_file: ElfFile<'a>) -> ObjectFile<'a> {
+fn create_object_file<'a>(emulation: u8, elf_file: ElfFile<'a>, in_lib: bool) -> ObjectFile<'a> {
     check_file_compatibility(emulation, &elf_file);
-    let mut obj = new_object_file(elf_file);
+    let mut obj = new_object_file(elf_file, !in_lib);
     obj.parse();
     obj
 }

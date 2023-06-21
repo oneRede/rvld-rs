@@ -59,20 +59,14 @@ pub struct Sym {
     pub size: u64,
 }
 
-// func (s *Sym) IsAbs() bool {
-// 	return s.Shndx == uint16(elf.SHN_ABS)
-// }
-
-// func (s *Sym) IsUndef() bool {
-// 	return s.Shndx == uint16(elf.SHN_UNDEF)
-// }
-
-impl Sym{
+impl Sym {
+    #[allow(dead_code)]
     fn is_abs(&self) -> bool {
         self.shndx == ELF_ABS
     }
 
-    fn is_undef(&self) -> bool{
+    #[allow(dead_code)]
+    fn is_undef(&self) -> bool {
         self.shndx == ELF_UNDEF
     }
 }
@@ -160,8 +154,6 @@ impl<'a> ArHdr<'a> {
         return std::str::from_utf8(&self.name[..end]).unwrap();
     }
 }
-
-
 
 #[test]
 fn test_binary_seach() {

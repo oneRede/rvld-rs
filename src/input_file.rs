@@ -2,6 +2,7 @@ use crate::elf::{Ehdr, Shdr, Sym};
 use crate::elf::{EHDR_SIZE, SHDR_SIZE, SYM_SIZE};
 use crate::file::ElfFile;
 use crate::magic::check_magic;
+use crate::symbol::Symbol;
 use crate::utils::{fatal, read};
 
 const SHN_XINDEX: u16 = 0xffff;
@@ -14,6 +15,12 @@ pub struct InputFile<'a> {
     pub first_global: Option<i64>,
     pub sh_strtab: Option<&'a [u8]>,
     pub symbol_strtab: Option<&'a [u8]>,
+    // IsAlive      bool
+	// Symbols      []*Symbol
+	// LocalSymbols []Symbol
+    pub is_alive: bool,
+    pub symbols: Vec<Symbol<'a>>,
+    pub local_symbols: Vec<Symbol<'a>>
 }
 
 #[allow(dead_code)]
@@ -25,6 +32,9 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
         first_global: None,
         sh_strtab: None,
         symbol_strtab: None,
+        is_alive: false,
+        symbols: vec![],
+        local_symbols: vec![],
     };
 
     if f.file.contents.len() < EHDR_SIZE {

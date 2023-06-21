@@ -1,8 +1,9 @@
-use std::{hash::Hash, collections::HashMap};
+use std::{collections::HashMap};
 
 use crate::{
     machine_type::{MachineType, MACHINE_TYPE_NONE},
-    object_file::ObjectFile, symbol::Symbol,
+    object_file::ObjectFile,
+    symbol::Symbol,
 };
 
 #[allow(dead_code)]

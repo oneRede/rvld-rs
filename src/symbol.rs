@@ -41,6 +41,8 @@
 use crate::elf::Sym;
 use crate::{object_file::ObjectFile, input_section::InputSection};
 use crate::context::Context;
+
+#[allow(dead_code)]
 pub struct Symbol<'a> {
     object_file: ObjectFile<'a>,
     input_section: InputSection<'a>,

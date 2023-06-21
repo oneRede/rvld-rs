@@ -1,7 +1,9 @@
+use std::vec;
+
 use crate::{
     elf::Shdr,
     file::ElfFile,
-    input_file::{new_input_file, InputFile},
+    input_file::{new_input_file, InputFile}, input_section::InputSection,
 };
 
 const SHT_SYMTAB: u16 = 2;
@@ -10,14 +12,18 @@ const SHT_SYMTAB: u16 = 2;
 pub struct ObjectFile<'a> {
     pub input_file: InputFile<'a>,
     pub symtab_sec: Option<Shdr>,
+    pub symbol_shndx_sec: Vec<u32>,
+    pub section: Vec<InputSection<'a>>,
 }
 
 #[allow(dead_code)]
-pub fn new_object_file(elf_file: ElfFile) -> ObjectFile {
+pub fn new_object_file(elf_file: ElfFile, _is_alive: bool) -> ObjectFile {
     let input_file = new_input_file(elf_file);
     let object_file = ObjectFile {
         input_file: input_file,
         symtab_sec: None,
+        symbol_shndx_sec: vec![],
+        section: vec![],
     };
     object_file
 }
