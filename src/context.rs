@@ -3,7 +3,7 @@ use std::{collections::HashMap};
 use crate::{
     machine_type::{MachineType, MACHINE_TYPE_NONE},
     object_file::ObjectFile,
-    symbol::Symbol,
+    symbol::Symbol, merged_section::MergedSection,
 };
 
 #[allow(dead_code)]
@@ -18,6 +18,7 @@ pub struct Context<'a> {
     pub args: ContextArgs,
     pub objs: Vec<ObjectFile<'a>>,
     pub symbol_map: HashMap<&'static str, Symbol<'a>>,
+    pub merged_sections: Vec<MergedSection>,
 }
 
 impl<'a> Context<'a> {
@@ -31,6 +32,7 @@ impl<'a> Context<'a> {
             },
             objs: vec![],
             symbol_map: HashMap::new(),
+            merged_sections: vec![],
         }
     }
 }

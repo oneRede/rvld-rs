@@ -15,6 +15,9 @@ mod symbol;
 mod chunk;
 mod merged_section;
 mod section_fragment;
+mod output;
+mod constent;
+mod mergeablesection;
 mod utils;
 
 use crate::{

@@ -15,9 +15,6 @@ pub struct InputFile<'a> {
     pub first_global: Option<i64>,
     pub sh_strtab: Option<&'a [u8]>,
     pub symbol_strtab: Option<&'a [u8]>,
-    // IsAlive      bool
-	// Symbols      []*Symbol
-	// LocalSymbols []Symbol
     pub is_alive: bool,
     pub symbols: Vec<Symbol<'a>>,
     pub local_symbols: Vec<Symbol<'a>>
