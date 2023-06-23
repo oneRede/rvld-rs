@@ -1,6 +1,7 @@
 use std::{cell::UnsafeCell, env, process::exit};
 
 mod archive;
+mod chunk;
 mod context;
 mod elf;
 mod file;
@@ -10,14 +11,13 @@ mod input_file;
 mod input_section;
 mod machine_type;
 mod magic;
-mod object_file;
-mod symbol;
-mod chunk;
+mod mergeablesection;
 mod merged_section;
-mod section_fragment;
+mod object_file;
 mod output;
 mod passes;
-mod mergeablesection;
+mod section_fragment;
+mod symbol;
 mod utils;
 
 use crate::{
@@ -56,7 +56,10 @@ fn main() {
     println!("{:?}", ctx.objs.len());
 
     for obj in ctx.objs {
-        println!("{:?}", obj.input_file.file.name);
+        println!(
+            "{:?}",
+            unsafe { obj.input_file.as_ref().unwrap() }.file.name
+        );
     }
 }
 

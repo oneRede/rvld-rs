@@ -35,6 +35,6 @@ pub fn read_archive_members(file: ElfFile) -> Vec<ElfFile> {
             files: vec![&file as *const ElfFile],
         });
     }
-    
+
     elf_files
 }

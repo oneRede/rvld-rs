@@ -17,11 +17,11 @@ pub struct InputFile<'a> {
     pub symbol_strtab: Option<&'a [u8]>,
     pub is_alive: bool,
     pub symbols: Vec<Symbol<'a>>,
-    pub local_symbols: Vec<Symbol<'a>>
+    pub local_symbols: Vec<Symbol<'a>>,
 }
 
 #[allow(dead_code)]
-pub fn new_input_file(file: ElfFile) -> InputFile {
+pub fn new_input_file(file: ElfFile) -> *mut InputFile {
     let mut f = InputFile {
         file: file,
         elf_sections: Vec::new(),
@@ -63,7 +63,7 @@ pub fn new_input_file(file: ElfFile) -> InputFile {
         sh_strtab = shdr.link as i64;
     }
     f.sh_strtab = Some(f.get_bytes_from_idx(sh_strtab));
-    return f;
+    return Box::leak(Box::new(f));
 }
 
 impl<'a> InputFile<'a> {

@@ -1,9 +1,10 @@
-use std::{collections::HashMap};
+use std::collections::HashMap;
 
 use crate::{
     machine_type::{MachineType, MACHINE_TYPE_NONE},
+    merged_section::MergedSection,
     object_file::ObjectFile,
-    symbol::Symbol, merged_section::MergedSection,
+    symbol::Symbol,
 };
 
 #[allow(dead_code)]

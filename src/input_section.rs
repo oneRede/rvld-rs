@@ -4,7 +4,7 @@ use crate::{
 };
 #[allow(dead_code)]
 pub struct InputSection<'a> {
-    object_file: &'a ObjectFile<'a>,
+    object_file: *mut ObjectFile<'a>,
     contents: &'static [u8],
     shndx: usize,
     sh_size: u32,
@@ -14,10 +14,12 @@ pub struct InputSection<'a> {
 
 #[allow(dead_code)]
 impl<'a> InputSection<'a> {
-    pub fn new(object_file: &'a mut ObjectFile<'a>, shndx: usize) -> Self {
-        let shdr = object_file.input_file.elf_sections[shndx];
-        let contents = &object_file.input_file.file.contents
-            [shdr.offset as usize..(shdr.offset + SHDR_SIZE as u64) as usize];
+    pub fn new(object_file: *mut ObjectFile<'a>, shndx: usize) -> Self {
+        let shdr = unsafe { (object_file.as_ref()).unwrap().input_file.as_ref().unwrap() }
+            .elf_sections[shndx];
+        let contents = &unsafe { (object_file.as_ref()).unwrap().input_file.as_ref().unwrap() }
+            .file
+            .contents[shdr.offset as usize..(shdr.offset + SHDR_SIZE as u64) as usize];
         assert!(shdr.flags & SHF_COMPRESSED == 0);
         let sh_size = shdr.size;
         let to_p2_align = |align: u64| -> u8 {
@@ -38,13 +40,36 @@ impl<'a> InputSection<'a> {
     }
 
     fn shdr(&self) -> Shdr {
-        assert!(self.shndx < self.object_file.input_file.elf_sections.len());
-        self.object_file.input_file.elf_sections[self.shndx]
+        assert!(
+            self.shndx
+                < unsafe {
+                    (self.object_file.as_ref().unwrap())
+                        .input_file
+                        .as_ref()
+                        .unwrap()
+                }
+                .elf_sections
+                .len()
+        );
+        unsafe {
+            (self.object_file.as_ref().unwrap())
+                .input_file
+                .as_ref()
+                .unwrap()
+        }
+        .elf_sections[self.shndx]
     }
 
     fn name(&self) -> &str {
         elf_get_name(
-            self.object_file.input_file.sh_strtab.unwrap(),
+            unsafe {
+                (self.object_file.as_ref().unwrap())
+                    .input_file
+                    .as_ref()
+                    .unwrap()
+            }
+            .sh_strtab
+            .unwrap(),
             self.shdr().name,
         )
     }
