@@ -13,6 +13,20 @@ pub const ELF_ABS: u16 = 0;
 #[allow(dead_code)]
 pub const ELF_UNDEF: u16 = 0;
 
+pub const SHF_GROUP: u64 = 0;
+pub const SHF_COMPRESSED: u64 = 0;
+pub const SHF_MERGE: u64 = 0;
+pub const SHF_STRINGS: u64 = 0;
+pub const SHF_COMMON: u64 = 0;
+
+pub const SHT_GROUP: u32 = 0;
+pub const SHT_SYMTAB: u32 = 1;
+pub const SHT_STRTAB: u32 = 2;
+pub const SHT_REL: u32 = 3;
+pub const SHT_RELA: u32 = 4;
+pub const SHT_NULL: u32 = 5;
+pub const SHT_SYMTAB_SHNDX: u32 = 6;
+
 #[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy, Debug)]
@@ -59,15 +73,18 @@ pub struct Sym {
     pub size: u64,
 }
 
+#[allow(dead_code)]
 impl Sym {
-    #[allow(dead_code)]
     fn is_abs(&self) -> bool {
         self.shndx == ELF_ABS
     }
 
-    #[allow(dead_code)]
     fn is_undef(&self) -> bool {
         self.shndx == ELF_UNDEF
+    }
+
+    fn is_common(&self) -> bool {
+        self.shndx == SHF_COMMON as u16
     }
 }
 

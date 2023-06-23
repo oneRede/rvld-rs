@@ -16,7 +16,7 @@ mod chunk;
 mod merged_section;
 mod section_fragment;
 mod output;
-mod constent;
+mod passes;
 mod mergeablesection;
 mod utils;
 

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     chunk::Chunk,
-    constent::{SHF_COMPRESSED, SHF_GROUP, SHF_MERGE, SHF_STRINGS},
+    elf::{SHF_COMPRESSED, SHF_GROUP, SHF_MERGE, SHF_STRINGS},
     context::Context,
     output::get_output_name,
     section_fragment::SectionFragment,
@@ -14,8 +14,8 @@ pub struct MergedSection {
     map: HashMap<String, *mut SectionFragment>,
 }
 
+#[allow(dead_code)]
 impl MergedSection {
-    #[allow(dead_code)]
     fn new(name: String, flags: u64, ty: u32) -> Self {
         let mut chunk = Chunk::new();
         chunk.name = name;
@@ -28,7 +28,6 @@ impl MergedSection {
         }
     }
 
-    #[allow(dead_code)]
     fn insert(&mut self, key: String, p2_align: u32) {
         let sf = self.map.remove(&key);
         match sf {

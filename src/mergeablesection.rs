@@ -1,12 +1,12 @@
 use crate::{merged_section::MergedSection, section_fragment::SectionFragment};
 
 #[allow(dead_code)]
-struct MergeableSection {
-    parent: MergedSection,
-    p2_align: u8,
-    strs: Vec<String>,
-    frag_offsets: Vec<usize>,
-    fragments: Vec<SectionFragment>,
+pub struct MergeableSection {
+    pub parent: MergedSection,
+    pub p2_align: u8,
+    pub strs: Vec<String>,
+    pub frag_offsets: Vec<usize>,
+    pub fragments: Vec<SectionFragment>,
 }
 
 #[allow(dead_code)]
