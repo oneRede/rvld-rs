@@ -33,6 +33,16 @@ pub fn remove_prefix(s: &str, prefix: &str) -> (String, bool) {
     return (s.to_string(), false);
 }
 
+pub fn all_zeros(bs: &[u8]) -> bool{
+    let mut b = 0u8;
+
+    for i in bs{
+        b |= i
+    }
+    return b == 0
+}
+
+
 #[test]
 fn test_remove_prefix() {
     let s = "1234567890".to_string();

@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap};
 
 use crate::{
     chunk::Chunk,
@@ -16,7 +16,7 @@ pub struct MergedSection {
 
 #[allow(dead_code)]
 impl MergedSection {
-    fn new(name: String, flags: u64, ty: u32) -> Self {
+    pub fn new(name: String, flags: u64, ty: u32) -> Self {
         let mut chunk = Chunk::new();
         chunk.name = name;
         chunk.shdr.flags = flags;
@@ -28,43 +28,44 @@ impl MergedSection {
         }
     }
 
-    fn insert(&mut self, key: String, p2_align: u32) {
-        let sf = self.map.remove(&key);
+    pub fn insert(&mut self, key: &str, p2_align: u32) -> Option<*mut SectionFragment>{
+        let sf = self.map.remove(key);
         match sf {
             Some(v) => {
                 if (unsafe { &(*v) }).p2_align < p2_align {
                     let frag = Box::new(SectionFragment::new(self as *mut MergedSection));
                     let frag = Box::leak(frag);
                     frag.p2_align = p2_align;
-                    self.map.insert(key, frag);
+                    self.map.insert(String::from(key), frag);
                 }
             }
             None => {
                 let frag = Box::new(SectionFragment::new(self as *mut MergedSection));
                 let frag = Box::leak(frag);
-                self.map.insert(key, frag);
+                self.map.insert(String::from(key), frag);
             }
         }
+        sf
     }
 }
 
 #[allow(dead_code)]
-fn get_merged_section_instance<'a>(
+pub fn get_merged_section_instance<'a>(
     ctx: &'a mut Context,
-    name: String,
+    name: &str,
     ty: u32,
     flags: u64,
-) -> Option<&'a MergedSection> {
+) -> Option<*mut MergedSection> {
     let name = get_output_name(&name, flags);
     let flags = flags & SHF_GROUP & SHF_MERGE & SHF_STRINGS & SHF_COMPRESSED;
 
-    let find = || -> Option<&MergedSection> {
+    let find = || -> Option<*mut MergedSection> {
         for osec in &ctx.merged_sections {
-            if name == osec.chunk.name
-                && flags == osec.chunk.shdr.flags
-                && ty == osec.chunk.shdr.shdr_type
+            if name == unsafe { &osec.as_ref().unwrap().chunk.name }
+                && flags == unsafe { osec.as_ref().unwrap()}.chunk.shdr.flags
+                && ty == unsafe { osec.as_ref().unwrap()}.chunk.shdr.shdr_type
             {
-                return Some(osec);
+                return Some(osec.clone());
             }
         }
         return None;
@@ -72,7 +73,7 @@ fn get_merged_section_instance<'a>(
 
     let osce = find();
     match osce {
-        Some(ms) => return Some(ms),
+        Some(ms) => return Some(ms as *mut MergedSection),
         None => return None,
     }
 }

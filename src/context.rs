@@ -19,7 +19,7 @@ pub struct Context<'a> {
     pub args: ContextArgs,
     pub objs: Vec<ObjectFile<'a>>,
     pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
-    pub merged_sections: Vec<MergedSection>,
+    pub merged_sections: Vec<*mut MergedSection>,
 }
 
 impl<'a> Context<'a> {

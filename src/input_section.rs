@@ -39,7 +39,7 @@ impl<'a> InputSection<'a> {
         }
     }
 
-    fn shdr(&self) -> Shdr {
+    pub fn shdr(&self) -> Shdr {
         assert!(
             self.shndx
                 < unsafe {
@@ -60,7 +60,7 @@ impl<'a> InputSection<'a> {
         .elf_sections[self.shndx]
     }
 
-    fn name(&self) -> &str {
+    pub fn name(&self) -> &str {
         elf_get_name(
             unsafe {
                 (self.object_file.as_ref().unwrap())
