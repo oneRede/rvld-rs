@@ -4,12 +4,12 @@ use crate::{
 };
 #[allow(dead_code)]
 pub struct InputSection<'a> {
-    object_file: *mut ObjectFile<'a>,
-    contents: &'static [u8],
-    shndx: usize,
-    sh_size: u32,
-    is_alive: bool,
-    p2_align: u8,
+    pub object_file: *mut ObjectFile<'a>,
+    pub contents: &'static [u8],
+    pub shndx: usize,
+    pub sh_size: u32,
+    pub is_alive: bool,
+    pub p2_align: u8,
 }
 
 #[allow(dead_code)]

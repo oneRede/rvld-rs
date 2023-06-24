@@ -1,33 +1,38 @@
+use std::env::consts;
+
 use crate::context::Context;
 use crate::elf::Sym;
+use crate::section_fragment::SectionFragment;
 use crate::{input_section::InputSection, object_file::ObjectFile};
 
 #[allow(dead_code)]
 pub struct Symbol<'a> {
-    object_file: Option<*mut ObjectFile<'a>>,
-    input_section: Option<InputSection<'a>>,
-    name: &'static str,
-    value: u64,
-    symidx: i32,
+    pub name: &'a str,
+    pub value: u64,
+    pub symidx: i32,
+    pub object_file: Option<*const ObjectFile<'a>>,
+    pub input_section: Option<*mut InputSection<'a>>,
+    pub section_fragment: Option<*mut SectionFragment>,
 }
 
 #[allow(dead_code)]
 impl<'a> Symbol<'a> {
-    fn new(name: &'static str) -> Symbol<'a> {
+    pub fn new(name: &'static str) -> Symbol<'a> {
         Symbol {
-            object_file: None,
-            input_section: None,
             name: name,
             value: 0,
             symidx: 0,
+            object_file: None,
+            input_section: None,
+            section_fragment: None,
         }
     }
 
-    fn get_symbol_by_name(&self, ctx: Context<'a>, name: &str) -> *const Symbol<'a> {
-        &ctx.symbol_map[name] as *const Symbol<'a>
+    pub fn get_symbol_by_name(ctx: &Context<'a>, name: &str) -> *mut Symbol<'a> {
+        ctx.symbol_map[name]
     }
 
-    fn elf_sym(&self) -> Sym {
+    pub fn elf_sym(&self) -> Sym {
         assert!(
             self.symidx
                 < unsafe {
@@ -48,7 +53,19 @@ impl<'a> Symbol<'a> {
         .elf_syms[self.symidx as usize]
     }
 
-    fn clear(&self) {
+    pub fn clear(&self) {
         // nothing
     }
+
+    pub fn set_input_section(&'a mut self, isec: *mut InputSection<'a>){
+        self.input_section = Some(isec);
+        self.section_fragment = None;
+    }
+
+    pub fn set_section_fragment(&'a mut self, frag: *mut SectionFragment){
+        self.input_section = None;
+        self.section_fragment = Some(frag);
+    }
+
+
 }

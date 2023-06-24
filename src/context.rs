@@ -18,7 +18,7 @@ pub struct ContextArgs {
 pub struct Context<'a> {
     pub args: ContextArgs,
     pub objs: Vec<ObjectFile<'a>>,
-    pub symbol_map: HashMap<&'static str, Symbol<'a>>,
+    pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
     pub merged_sections: Vec<MergedSection>,
 }
 

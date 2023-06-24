@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     chunk::Chunk,
-    elf::{SHF_COMPRESSED, SHF_GROUP, SHF_MERGE, SHF_STRINGS},
     context::Context,
+    elf::{SHF_COMPRESSED, SHF_GROUP, SHF_MERGE, SHF_STRINGS},
     output::get_output_name,
     section_fragment::SectionFragment,
 };
@@ -49,11 +49,16 @@ impl MergedSection {
 }
 
 #[allow(dead_code)]
-fn get_merged_section_instance<'a>(ctx: &'a mut Context, name: String, ty: u32, flags: u64) -> Option<&'a MergedSection>{
+fn get_merged_section_instance<'a>(
+    ctx: &'a mut Context,
+    name: String,
+    ty: u32,
+    flags: u64,
+) -> Option<&'a MergedSection> {
     let name = get_output_name(&name, flags);
     let flags = flags & SHF_GROUP & SHF_MERGE & SHF_STRINGS & SHF_COMPRESSED;
 
-    let find = || -> Option<&MergedSection>{
+    let find = || -> Option<&MergedSection> {
         for osec in &ctx.merged_sections {
             if name == osec.chunk.name
                 && flags == osec.chunk.shdr.flags
@@ -62,14 +67,12 @@ fn get_merged_section_instance<'a>(ctx: &'a mut Context, name: String, ty: u32, 
                 return Some(osec);
             }
         }
-        return None
+        return None;
     };
 
     let osce = find();
     match osce {
-        Some(ms) => {
-            return Some(ms)
-        },
-        None => {return None}
+        Some(ms) => return Some(ms),
+        None => return None,
     }
 }

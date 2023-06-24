@@ -26,6 +26,7 @@ pub const SHT_REL: u32 = 3;
 pub const SHT_RELA: u32 = 4;
 pub const SHT_NULL: u32 = 5;
 pub const SHT_SYMTAB_SHNDX: u32 = 6;
+pub const SHN_XINDEX:u16 = 7;
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -75,15 +76,15 @@ pub struct Sym {
 
 #[allow(dead_code)]
 impl Sym {
-    fn is_abs(&self) -> bool {
+    pub fn is_abs(&self) -> bool {
         self.shndx == ELF_ABS
     }
 
-    fn is_undef(&self) -> bool {
+    pub fn is_undef(&self) -> bool {
         self.shndx == ELF_UNDEF
     }
 
-    fn is_common(&self) -> bool {
+    pub fn is_common(&self) -> bool {
         self.shndx == SHF_COMMON as u16
     }
 }
@@ -102,7 +103,7 @@ pub struct ArHdr<'a> {
 }
 
 #[allow(dead_code)]
-pub fn elf_get_name(str_tab: &[u8], offset: u32) -> &str {
+pub fn elf_get_name<'a>(str_tab: &'a [u8], offset: u32) -> &'a str {
     let offset = offset as usize;
     let len = binary_search(&str_tab[offset..], 0).unwrap();
     return std::str::from_utf8(&str_tab[offset..(offset + len)]).unwrap();

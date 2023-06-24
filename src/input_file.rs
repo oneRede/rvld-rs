@@ -16,8 +16,8 @@ pub struct InputFile<'a> {
     pub sh_strtab: Option<&'a [u8]>,
     pub symbol_strtab: Option<&'a [u8]>,
     pub is_alive: bool,
-    pub symbols: Vec<Symbol<'a>>,
-    pub local_symbols: Vec<Symbol<'a>>,
+    pub symbols: Vec<*mut Symbol<'a>>,
+    pub local_symbols: Vec<*mut Symbol<'a>>,
 }
 
 #[allow(dead_code)]
