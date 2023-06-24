@@ -166,7 +166,7 @@ impl<'a> ObjectFile<'a> {
         self.input_sections[self.get_shndx(esym, idx.try_into().unwrap())]
     }
 
-    pub fn mark_live_objects(&self, ctx: Context, feeder: fn(*const ObjectFile)) {
+    pub fn mark_live_objects(&self, _ctx: Context, feeder: fn(*const ObjectFile)) {
         assert!(unsafe { self.input_file.as_ref().unwrap().is_alive });
 
         let fg = unsafe { self.input_file.as_ref().unwrap().first_global.unwrap() };

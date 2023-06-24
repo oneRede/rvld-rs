@@ -1,5 +1,3 @@
-use std::env::consts;
-
 use crate::context::Context;
 use crate::elf::Sym;
 use crate::section_fragment::SectionFragment;
