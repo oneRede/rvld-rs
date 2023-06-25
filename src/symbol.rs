@@ -8,7 +8,7 @@ pub struct Symbol<'a> {
     pub name: &'a str,
     pub value: u64,
     pub symidx: i32,
-    pub object_file: Option<*const ObjectFile<'a>>,
+    pub object_file: Option<*mut ObjectFile<'a>>,
     pub input_section: Option<*mut InputSection<'a>>,
     pub section_fragment: Option<*mut SectionFragment>,
 }

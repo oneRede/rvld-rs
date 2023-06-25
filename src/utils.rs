@@ -33,15 +33,28 @@ pub fn remove_prefix(s: &str, prefix: &str) -> (String, bool) {
     return (s.to_string(), false);
 }
 
-pub fn all_zeros(bs: &[u8]) -> bool{
+#[allow(dead_code)]
+pub fn all_zeros(bs: &[u8]) -> bool {
     let mut b = 0u8;
 
-    for i in bs{
+    for i in bs {
         b |= i
     }
-    return b == 0
+    return b == 0;
 }
 
+#[allow(dead_code)]
+pub fn remove_if<T>(elems: &Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<&T>{
+    let mut new_elems = vec![];
+    for elem in elems.into_iter() {
+        if func(elem){
+            continue;
+        }
+        new_elems.push(elem);
+     }
+
+    new_elems
+}
 
 #[test]
 fn test_remove_prefix() {

@@ -17,7 +17,7 @@ pub struct ContextArgs {
 #[allow(dead_code)]
 pub struct Context<'a> {
     pub args: ContextArgs,
-    pub objs: Vec<ObjectFile<'a>>,
+    pub objs: Vec<*mut ObjectFile<'a>>,
     pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
     pub merged_sections: Vec<*mut MergedSection>,
 }

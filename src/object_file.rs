@@ -156,7 +156,7 @@ impl<'a> ObjectFile<'a> {
 
             if unsafe { sym.as_ref().unwrap().object_file.is_none() } {
                 let sym = unsafe { sym.as_mut().unwrap() };
-                sym.object_file = Some(self as *const ObjectFile);
+                sym.object_file = Some((self as *const ObjectFile).cast_mut());
                 sym.value = esym.val;
                 sym.symidx = i as i32;
                 sym.set_input_section(isec.unwrap());
@@ -168,7 +168,7 @@ impl<'a> ObjectFile<'a> {
         self.input_sections[self.get_shndx(esym, idx.try_into().unwrap())].unwrap()
     }
 
-    pub fn mark_live_objects(&self, _ctx: Context, feeder: fn(*const ObjectFile)) {
+    pub fn mark_live_objects(&self, _ctx: &Context, mut feeder: impl FnMut()) {
         assert!(unsafe { self.input_file.as_ref().unwrap().is_alive });
 
         let fg = unsafe { self.input_file.as_ref().unwrap().first_global.unwrap() };
@@ -202,7 +202,7 @@ impl<'a> ObjectFile<'a> {
                         .unwrap()
                 }
                 .is_alive = true;
-                feeder(unsafe { sym.as_ref().unwrap().object_file.unwrap() })
+                let _ = &feeder();
             }
         }
     }

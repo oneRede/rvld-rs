@@ -23,6 +23,7 @@ mod utils;
 use crate::{
     input::read_input_files,
     machine_type::{get_machine_type_from_contents, MACHINE_TYPE_NONE},
+    passes::{register_section_pieces, resolve_symbols},
 };
 use context::Context;
 use file::must_new_file;
@@ -53,13 +54,36 @@ fn main() {
     }
 
     read_input_files(&mut ctx, remaining);
-    println!("{:?}", ctx.objs.len());
+    resolve_symbols(&mut ctx);
+    register_section_pieces(&mut ctx);
 
     for obj in ctx.objs {
-        println!(
-            "{:?}",
-            unsafe { obj.input_file.as_ref().unwrap() }.file.name
-        );
+        if unsafe { obj.as_ref().unwrap().input_file.as_ref().unwrap().file.name }
+            == "out/tests/hello/a.o"
+        {
+            for sym in unsafe { &obj.as_ref().unwrap().input_file.as_ref().unwrap().symbols } {
+                if unsafe { sym.as_ref().unwrap().name } == "puts" {
+                    println!("{:?}", unsafe {
+                        sym.as_ref()
+                            .unwrap()
+                            .object_file
+                            .unwrap()
+                            .as_ref()
+                            .unwrap()
+                            .input_file
+                            .as_ref()
+                            .unwrap()
+                            .file
+                            .files
+                            .get(0)
+                            .unwrap()
+                            .as_ref()
+                            .unwrap()
+                            .name
+                    });
+                }
+            }
+        }
     }
 }
 

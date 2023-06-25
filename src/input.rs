@@ -34,12 +34,12 @@ pub fn read_file<'a>(ctx: &mut Context<'a>, elf_file: ElfFile<'a>) {
     match ft {
         FILE_TYPE_OBJECT => {
             ctx.objs
-                .push(create_object_file(emulation, elf_file, false));
+                .push(Box::leak(Box::new(create_object_file(emulation, elf_file, false))));
         }
         FILE_TYPE_ARCHIVE => {
             for child in read_archive_members(elf_file) {
                 assert_eq!(get_file_type(child.contents), FILE_TYPE_OBJECT);
-                ctx.objs.push(create_object_file(emulation, child, true))
+                ctx.objs.push(Box::leak(Box::new(create_object_file(emulation, child, true))))
             }
         }
         _ => fatal("unkown file type!"),

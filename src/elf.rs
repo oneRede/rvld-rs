@@ -119,23 +119,21 @@ fn binary_search(data: &[u8], sep: u8) -> Option<usize> {
     None
 }
 
+#[allow(dead_code)]
 impl<'a> ArHdr<'a> {
-    #[allow(dead_code)]
+    
     pub fn has_prefix(&self, s: &str) -> bool {
         return s.starts_with(std::str::from_utf8(self.name).unwrap());
     }
 
-    #[allow(dead_code)]
     pub fn is_str_tab(&self) -> bool {
         return self.has_prefix("// ");
     }
 
-    #[allow(dead_code)]
     pub fn is_symtab(&self) -> bool {
         return self.has_prefix("/ ") || self.has_prefix("/SYM64");
     }
 
-    #[allow(dead_code)]
     pub fn get_size(&self) -> usize {
         let size = str::parse::<usize>(
             std::str::from_utf8(self.size)
@@ -147,7 +145,6 @@ impl<'a> ArHdr<'a> {
         size
     }
 
-    #[allow(dead_code)]
     pub fn read_name(&self, str_tab: &'a str) -> &'a str {
         if unsafe {
             std::str::from_utf8(std::slice::from_raw_parts(
