@@ -4,7 +4,7 @@ use crate::{
     machine_type::{MachineType, MACHINE_TYPE_NONE},
     merged_section::MergedSection,
     object_file::ObjectFile,
-    symbol::Symbol,
+    symbol::Symbol, output_ehdr::OutputEhdr, chunk::{Chunk}, elf::Sym,
 };
 
 #[allow(dead_code)]
@@ -17,13 +17,19 @@ pub struct ContextArgs {
 #[allow(dead_code)]
 pub struct Context<'a> {
     pub args: ContextArgs,
+    pub buf: Vec<u8>,
+    pub ehdr: OutputEhdr,
     pub objs: Vec<*mut ObjectFile<'a>>,
+    pub chunks: Option<Vec<*mut Chunk>>,
     pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
     pub merged_sections: Vec<*mut MergedSection>,
+    pub internal_obj: Option<*mut ObjectFile<'a>>,
+    pub internal_esyms: Vec<Sym>,
 }
 
+#[allow(dead_code)]
 impl<'a> Context<'a> {
-    #[allow(dead_code)]
+    
     pub fn new() -> Self {
         Context {
             args: ContextArgs {
@@ -31,9 +37,14 @@ impl<'a> Context<'a> {
                 emulation: MACHINE_TYPE_NONE,
                 library_paths: vec![],
             },
+            buf: vec![],
+            ehdr: OutputEhdr::new(),
             objs: vec![],
+            chunks: None,
             symbol_map: HashMap::new(),
             merged_sections: vec![],
+            internal_esyms: vec![],
+            internal_obj: None
         }
     }
 }

@@ -8,6 +8,7 @@ pub struct SectionFragment {
     pub is_alive: bool,
 }
 
+#[allow(dead_code)]
 impl SectionFragment {
     #[allow(dead_code)]
     pub fn new(m: *mut MergedSection) -> Self {

@@ -1,6 +1,9 @@
 use std::vec;
 
-use crate::{context::Context, object_file::ObjectFile};
+use crate::{
+    context::Context, object_file::ObjectFile, output_ehdr::OutputEhdr,
+    utils::align_to,
+};
 
 #[allow(dead_code)]
 pub fn resolve_symbols(ctx: &mut Context) {
@@ -57,8 +60,26 @@ pub fn mark_live_objects(ctx: &Context) {
 }
 
 #[allow(dead_code)]
-pub fn register_section_pieces(ctx: &mut Context){
-    for file in &ctx.objs{
+pub fn register_section_pieces(ctx: &mut Context) {
+    for file in &ctx.objs {
         unsafe { file.as_mut().unwrap().register_section_pieces() }
     }
+}
+
+#[allow(dead_code)]
+pub fn create_synthetic_sections(ctx: &mut Context) {
+    ctx.ehdr = OutputEhdr::new();
+    ctx.chunks.as_mut().unwrap().push(ctx.ehdr.chunk);
+}
+
+#[allow(dead_code)]
+fn get_file_size(ctx: Context) -> u64 {
+    let mut file_off = 0u64;
+
+    for c in ctx.chunks.unwrap() {
+        file_off = align_to(file_off, unsafe { c.as_ref().unwrap().shdr.addr_align });
+        file_off += unsafe { c.as_ref().unwrap().shdr.size };
+    }
+
+    file_off
 }

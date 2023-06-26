@@ -12,6 +12,7 @@ pub const AR_HDR_SIZE: usize = mem::size_of::<ArHdr>();
 pub const ELF_ABS: u16 = 0;
 #[allow(dead_code)]
 pub const ELF_UNDEF: u16 = 0;
+pub const PHDR_SIZE: usize = mem::size_of::<Phdr>();
 
 pub const SHF_GROUP: u64 = 0;
 pub const SHF_COMPRESSED: u64 = 0;
@@ -26,7 +27,22 @@ pub const SHT_REL: u32 = 3;
 pub const SHT_RELA: u32 = 4;
 pub const SHT_NULL: u32 = 5;
 pub const SHT_SYMTAB_SHNDX: u32 = 6;
-pub const SHN_XINDEX:u16 = 7;
+pub const SHN_XINDEX: u16 = 7;
+
+pub const EI_CLASS: u8 = 0;
+pub const EI_DATA: u8 = 0;
+pub const EI_VERSION: u8 = 0;
+pub const EI_OSABI: u8 = 0;
+pub const EI_ABIVERSION: u8 = 0;
+
+pub const ELFCLASS64: u8 = 0;
+pub const ELFDATA2LSB: u8 = 0;
+
+pub const EV_CURRENT: u32 = 0;
+
+pub const ET_EXEC: u16 = 0;
+
+pub const EM_RISCV: u16 = 0;
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -47,6 +63,29 @@ pub struct Ehdr {
     pub sh_num: u16,
     pub sh_strndx: u16,
 }
+
+#[allow(dead_code)]
+impl Ehdr {
+    pub fn new() -> Self {
+        Ehdr {
+            ident: [0; 16],
+            hdr_type: 0,
+            machine: 0,
+            version: 0,
+            entry: 0,
+            ph_off: 0,
+            sh_off: 0,
+            flags: 0,
+            eh_size: 0,
+            ph_ent_size: 0,
+            ph_num: 0,
+            sh_ent_size: 0,
+            sh_num: 0,
+            sh_strndx: 0,
+        }
+    }
+}
+
 #[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -62,6 +101,21 @@ pub struct Shdr {
     pub addr_align: u64,
     pub ent_size: u64,
 }
+
+#[allow(dead_code)]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Phdr {
+    pub p_type: u32,
+    pub falgs: u32,
+    pub offset: u64,
+    pub v_addr: u64,
+    pub p_addr: u64,
+    pub file_size: u64,
+    pub mem_size: u64,
+    pub align: u64,
+}
+
 #[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy)]
@@ -121,7 +175,6 @@ fn binary_search(data: &[u8], sep: u8) -> Option<usize> {
 
 #[allow(dead_code)]
 impl<'a> ArHdr<'a> {
-    
     pub fn has_prefix(&self, s: &str) -> bool {
         return s.starts_with(std::str::from_utf8(self.name).unwrap());
     }

@@ -1,4 +1,4 @@
-use crate::elf::Shdr;
+use crate::{context::Context, elf::Shdr};
 
 #[allow(dead_code)]
 pub struct Chunk {
@@ -6,8 +6,13 @@ pub struct Chunk {
     pub shdr: Shdr,
 }
 
+pub trait Chunker {
+    fn get_shdr(&self) -> Shdr;
+    fn copy_buf(&self, _ctx: Context);
+}
+
+#[allow(dead_code)]
 impl Chunk {
-    #[allow(dead_code)]
     pub fn new() -> Self {
         Chunk {
             name: "".to_string(),
@@ -25,4 +30,12 @@ impl Chunk {
             },
         }
     }
+}
+
+impl Chunker for Chunk {
+    fn get_shdr(&self) -> Shdr {
+        self.shdr
+    }
+
+    fn copy_buf(&self, _ctx: Context) {}
 }

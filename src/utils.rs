@@ -56,6 +56,14 @@ pub fn remove_if<T>(elems: &Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<&T>
     new_elems
 }
 
+#[allow(dead_code)]
+pub fn align_to(val: u64, align: u64) -> u64 {
+    if align == 0{
+        return val
+    }
+    return (val + align-1) &! (align -1)
+}
+
 #[test]
 fn test_remove_prefix() {
     let s = "1234567890".to_string();

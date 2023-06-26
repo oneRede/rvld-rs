@@ -18,6 +18,7 @@ mod output;
 mod passes;
 mod section_fragment;
 mod symbol;
+mod output_ehdr;
 mod utils;
 
 use crate::{
