@@ -29,7 +29,6 @@ pub struct Context<'a> {
 
 #[allow(dead_code)]
 impl<'a> Context<'a> {
-    
     pub fn new() -> Self {
         Context {
             args: ContextArgs {

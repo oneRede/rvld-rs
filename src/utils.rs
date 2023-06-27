@@ -44,24 +44,39 @@ pub fn all_zeros(bs: &[u8]) -> bool {
 }
 
 #[allow(dead_code)]
-pub fn remove_if<T>(elems: &Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<&T>{
+pub fn remove_if<T>(elems: &Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<&T> {
     let mut new_elems = vec![];
     for elem in elems.into_iter() {
-        if func(elem){
+        if func(elem) {
             continue;
         }
         new_elems.push(elem);
-     }
+    }
 
     new_elems
 }
 
 #[allow(dead_code)]
 pub fn align_to(val: u64, align: u64) -> u64 {
-    if align == 0{
-        return val
+    if align == 0 {
+        return val;
     }
-    return (val + align-1) &! (align -1)
+    return (val + align - 1) & !(align - 1);
+}
+
+#[allow(dead_code)]
+pub fn read_slice<T>(mut data: &mut [u8], sz: usize) -> Vec<T>
+where
+    T: Copy,
+{
+    let nums = data.len() / sz;
+    let mut res: Vec<T> = vec![];
+
+    for i in 0..nums {
+        res.push(read::<T>(data));
+        data = &mut data[sz..];
+    }
+    res
 }
 
 #[test]

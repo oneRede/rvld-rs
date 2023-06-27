@@ -13,6 +13,7 @@ pub const ELF_ABS: u16 = 0;
 #[allow(dead_code)]
 pub const ELF_UNDEF: u16 = 0;
 pub const PHDR_SIZE: usize = mem::size_of::<Phdr>();
+pub const RELA_SIZE: usize = mem::size_of::<Rela>();
 
 pub const SHF_GROUP: u64 = 0;
 pub const SHF_COMPRESSED: u64 = 0;
@@ -43,6 +44,10 @@ pub const EV_CURRENT: u32 = 0;
 pub const ET_EXEC: u16 = 0;
 
 pub const EM_RISCV: u16 = 0;
+
+pub const SHT_NOBITS:u32 = 0;
+
+pub const SHF_ALLOC: u64 = 0;
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -103,6 +108,24 @@ pub struct Shdr {
 }
 
 #[allow(dead_code)]
+impl Shdr{
+    pub fn new() -> Self{
+        Shdr{
+            name: 0,
+            shdr_type: 0,
+            flags: 0,
+            addr: 0,
+            offset: 0,
+            size: 0,
+            link: 0,
+            info: 0,
+            addr_align: 0,
+            ent_size: 0,
+        }
+    }
+}
+
+#[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy)]
 pub struct Phdr {
@@ -144,19 +167,6 @@ impl Sym {
 }
 
 #[allow(dead_code)]
-#[repr(C)]
-#[derive(Clone, Copy)]
-pub struct ArHdr<'a> {
-    name: &'a [u8; 16],
-    date: &'a [u8; 12],
-    uid: &'a [u8; 6],
-    gid: &'a [u8; 6],
-    mode: &'a [u8; 8],
-    size: &'a [u8; 10],
-    fmag: &'a [u8; 2],
-}
-
-#[allow(dead_code)]
 pub fn elf_get_name<'a>(str_tab: &'a [u8], offset: u32) -> &'a str {
     let offset = offset as usize;
     let len = binary_search(&str_tab[offset..], 0).unwrap();
@@ -171,6 +181,19 @@ fn binary_search(data: &[u8], sep: u8) -> Option<usize> {
         }
     }
     None
+}
+
+#[allow(dead_code)]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct ArHdr<'a> {
+    name: &'a [u8; 16],
+    date: &'a [u8; 12],
+    uid: &'a [u8; 6],
+    gid: &'a [u8; 6],
+    mode: &'a [u8; 8],
+    size: &'a [u8; 10],
+    fmag: &'a [u8; 2],
 }
 
 #[allow(dead_code)]
@@ -221,6 +244,16 @@ impl<'a> ArHdr<'a> {
         let end: usize = std::str::from_utf8(self.name).unwrap().rfind("\\").unwrap();
         return std::str::from_utf8(&self.name[..end]).unwrap();
     }
+}
+
+#[allow(dead_code)]
+#[repr(C)]
+#[derive(Clone, Copy)]
+pub struct Rela{
+    offset: u64,
+    ty: u32,
+    sym: Sym,
+    addend: i64,
 }
 
 #[test]
