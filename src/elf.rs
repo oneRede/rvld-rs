@@ -15,11 +15,18 @@ pub const ELF_UNDEF: u16 = 0;
 pub const PHDR_SIZE: usize = mem::size_of::<Phdr>();
 pub const RELA_SIZE: usize = mem::size_of::<Rela>();
 
+pub const R_RISCV_NONE: u32 = 0;
+pub const R_RISCV_RELAX:  u32 = 0;
+
 pub const SHF_GROUP: u64 = 0;
 pub const SHF_COMPRESSED: u64 = 0;
 pub const SHF_MERGE: u64 = 0;
 pub const SHF_STRINGS: u64 = 0;
 pub const SHF_COMMON: u64 = 0;
+pub const SHF_LINK_ORDER: u64 = 0;
+pub const SHF_ALLOC: u64 = 0;
+pub const SHF_WRITE: u64 = 0;
+pub const SHF_EXECINSTR: u64 = 0;
 
 pub const SHT_GROUP: u32 = 0;
 pub const SHT_SYMTAB: u32 = 1;
@@ -28,6 +35,9 @@ pub const SHT_REL: u32 = 3;
 pub const SHT_RELA: u32 = 4;
 pub const SHT_NULL: u32 = 5;
 pub const SHT_SYMTAB_SHNDX: u32 = 6;
+pub const SHT_NOBITS: u32 = 0;
+pub const SHT_PROGBITS: u32 = 0;
+
 pub const SHN_XINDEX: u16 = 7;
 
 pub const EI_CLASS: u8 = 0;
@@ -45,9 +55,12 @@ pub const ET_EXEC: u16 = 0;
 
 pub const EM_RISCV: u16 = 0;
 
-pub const SHT_NOBITS:u32 = 0;
+pub const PF_W: u32 = 0;
+pub const PF_X: u32 = 0;
+pub const PF_R: u32 = 0;
 
-pub const SHF_ALLOC: u64 = 0;
+pub const PT_PHDR: u64 = 0;
+
 
 #[allow(dead_code)]
 #[repr(C)]
@@ -108,9 +121,9 @@ pub struct Shdr {
 }
 
 #[allow(dead_code)]
-impl Shdr{
-    pub fn new() -> Self{
-        Shdr{
+impl Shdr {
+    pub fn new() -> Self {
+        Shdr {
             name: 0,
             shdr_type: 0,
             flags: 0,
@@ -130,13 +143,29 @@ impl Shdr{
 #[derive(Clone, Copy)]
 pub struct Phdr {
     pub p_type: u32,
-    pub falgs: u32,
+    pub flags: u32,
     pub offset: u64,
     pub v_addr: u64,
     pub p_addr: u64,
     pub file_size: u64,
     pub mem_size: u64,
     pub align: u64,
+}
+
+#[allow(dead_code)]
+impl Phdr {
+    pub fn new() -> Self {
+        Phdr {
+            p_type: 0,
+            flags: 0,
+            offset: 0,
+            v_addr: 0,
+            p_addr: 0,
+            file_size: 0,
+            mem_size: 0,
+            align: 0,
+        }
+    }
 }
 
 #[allow(dead_code)]
@@ -249,11 +278,11 @@ impl<'a> ArHdr<'a> {
 #[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy)]
-pub struct Rela{
-    offset: u64,
-    ty: u32,
-    sym: Sym,
-    addend: i64,
+pub struct Rela {
+    pub offset: u64,
+    pub ty: u32,
+    pub sym: u32,
+    pub addend: i64,
 }
 
 #[test]

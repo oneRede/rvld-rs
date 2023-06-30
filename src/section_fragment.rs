@@ -10,7 +10,6 @@ pub struct SectionFragment {
 
 #[allow(dead_code)]
 impl SectionFragment {
-    #[allow(dead_code)]
     pub fn new(m: *mut MergedSection) -> Self {
         SectionFragment {
             output: m,
@@ -18,5 +17,9 @@ impl SectionFragment {
             p2_align: 0,
             is_alive: false,
         }
+    }
+
+    pub fn get_addr(&self) -> u64{
+        unsafe { self.output.as_ref().unwrap().chunk.shdr.addr + self.offset as u64 } 
     }
 }

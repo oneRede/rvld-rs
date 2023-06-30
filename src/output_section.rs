@@ -1,10 +1,10 @@
-use crate::{chunk::Chunk, input_section::InputSection, elf::{Shdr, SHT_NOBITS}, context::Context};
+use crate::{chunk::Chunk, input_section::InputSection, elf::{Shdr, SHT_NOBITS, SHF_GROUP, SHF_COMPRESSED, SHF_LINK_ORDER}, context::Context, output::get_output_name};
 
 #[allow(dead_code)]
 pub struct OutputSection<'a> {
-    chunk: Chunk,
-    members: Vec<InputSection<'a>>,
-    idx: u32,
+    pub chunk: Chunk,
+    pub members: Vec<*mut InputSection<'a>>,
+    pub idx: u32,
 }
 
 // func NewOutputSection(
@@ -56,7 +56,7 @@ pub struct OutputSection<'a> {
 
 #[allow(dead_code)]
 impl<'a> OutputSection<'a> {
-    fn new(name: String, ty: u32, flags: u64, idx: u32) -> Self {
+    pub fn new(name: String, ty: u32, flags: u64, idx: u32) -> Self {
         let mut shdr = Shdr::new();
         shdr.shdr_type = ty;
         shdr.flags = flags;
@@ -69,14 +69,26 @@ impl<'a> OutputSection<'a> {
 
     }
 
-    fn copy_buf(&self, ctx: Context){
+    pub fn copy_buf(&self, ctx: Context){
         if self.chunk.shdr.shdr_type == SHT_NOBITS{
             return
         }
 
-        let base = ctx.buf[self.chunk.shdr.offset as usize];
+        let base = &ctx.buf[self.chunk.shdr.offset as usize..];
+        let base = Box::leak(base.into_iter().map(|n| -> u8 {*n}).collect());
         for isec in &self.members{
-            todo!("");
+            unsafe { isec.as_mut().unwrap().write_to(&ctx, &mut base[isec.as_ref().unwrap().offset as usize..]) };
         }
     }
+
+    pub fn get_output_section(ctx: Context, mut name:String, ty: u64, mut flags: u64){
+        name = get_output_name(&name, flags);
+        flags = flags &! SHF_GROUP &! SHF_COMPRESSED &! SHF_LINK_ORDER;
+
+        let find = || {
+            // for osec in ctx.
+        };
+    }
+
+
 }

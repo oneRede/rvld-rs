@@ -10,8 +10,8 @@ use crate::{
 
 #[allow(dead_code)]
 pub struct MergedSection {
-    chunk: Chunk,
-    map: HashMap<String, *mut SectionFragment>,
+    pub chunk: Chunk,
+    pub map: HashMap<String, *mut SectionFragment>,
 }
 
 #[allow(dead_code)]
@@ -61,7 +61,7 @@ pub fn get_merged_section_instance<'a>(
 
     let find = || -> Option<*mut MergedSection> {
         for osec in &ctx.merged_sections {
-            if name == unsafe { &osec.as_ref().unwrap().chunk.name }
+            if &name == unsafe { &osec.as_ref().unwrap().chunk.name }
                 && flags == unsafe { osec.as_ref().unwrap()}.chunk.shdr.flags
                 && ty == unsafe { osec.as_ref().unwrap()}.chunk.shdr.shdr_type
             {

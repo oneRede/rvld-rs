@@ -1,4 +1,4 @@
-use std::process::exit;
+use std::{process::exit, slice, mem};
 
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
@@ -22,6 +22,13 @@ pub fn assert(con: bool) {
 #[allow(dead_code)]
 pub fn read<T: Copy>(data: &[u8]) -> T {
     return unsafe { *(data.as_ptr() as *const T) };
+}
+
+#[allow(dead_code)]
+pub fn write<T>(data: &mut [u8], e: T) {
+    let buf = (&e as *const T) as *const u8;
+    let buf = unsafe { slice::from_raw_parts(buf, mem::size_of::<T>()) };
+    data.copy_from_slice(buf);
 }
 
 #[allow(dead_code)]
@@ -72,7 +79,7 @@ where
     let nums = data.len() / sz;
     let mut res: Vec<T> = vec![];
 
-    for i in 0..nums {
+    for _i in 0..nums {
         res.push(read::<T>(data));
         data = &mut data[sz..];
     }

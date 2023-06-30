@@ -1,8 +1,6 @@
-use std::slice;
-
 use crate::{
     context::Context,
-    elf::{elf_get_name, Rela, Shdr, RELA_SIZE, SHDR_SIZE, SHF_ALLOC, SHF_COMPRESSED, SHT_NOBITS},
+    elf::{elf_get_name, Rela, Shdr, RELA_SIZE, SHDR_SIZE, SHF_ALLOC, SHF_COMPRESSED, SHT_NOBITS, R_RISCV_NONE, R_RISCV_RELAX},
     object_file::ObjectFile,
     output_section::OutputSection,
     utils::read_slice,
@@ -17,7 +15,7 @@ pub struct InputSection<'a> {
     pub p2_align: u8,
 
     pub offset: u32,
-    pub output_section: Option<OutputSection<'a>>,
+    pub output_section: Option<*mut OutputSection<'a>>,
 
     pub relsec_idx: u32,
     pub rels: Vec<Rela>,
@@ -92,7 +90,7 @@ impl<'a> InputSection<'a> {
         )
     }
 
-    pub fn write_to(&mut self, ctx: Context, buf: &mut [u8]) {
+    pub fn write_to(&mut self, ctx: &Context, buf: &mut [u8]) {
         if self.shdr().shdr_type == SHT_NOBITS || self.sh_size == 0 {
             return;
         }
@@ -109,7 +107,19 @@ impl<'a> InputSection<'a> {
         buf.copy_from_slice(self.contents)
     }
 
-    pub fn apply_reloc_alloc(&self, ctx: Context, base: &[u8]) {}
+    pub fn apply_reloc_alloc(&mut self, ctx: &Context, base: &[u8]) {
+        let symbols = unsafe { &self.object_file.as_ref().unwrap().input_file.as_ref().unwrap().symbols };
+        let rels = self.get_rels();
+        
+        for i in 0..rels.unwrap().len(){
+            let rel = rels.unwrap()[i];
+            if rel.ty == R_RISCV_NONE || rel.ty == R_RISCV_RELAX{
+                continue;
+            }
+
+            let sym = symbols[rel.sym as usize];
+        }
+    }
 
     pub fn get_rels(&mut self) -> Option<&Vec<Rela>> {
         if self.relsec_idx == u32::MAX || !self.rels.is_empty() {
@@ -136,6 +146,10 @@ impl<'a> InputSection<'a> {
         let mut bs: Vec<u8> = bs.into_iter().map(|n| -> u8 { *n }).collect();
         self.rels = read_slice::<Rela>(bs.as_mut_slice(), RELA_SIZE);
         None
+    }
+
+    pub fn get_addr(&self) -> u64 {
+        unsafe{self.output_section.unwrap().as_ref().unwrap().chunk.shdr.addr + self.offset as u64}
     }
 }
 
