@@ -57,9 +57,27 @@ pub const EM_RISCV: u16 = 0;
 
 pub const PF_W: u32 = 0;
 pub const PF_X: u32 = 0;
+
+#[allow(dead_code)]
 pub const PF_R: u32 = 0;
 
+#[allow(dead_code)]
 pub const PT_PHDR: u64 = 0;
+
+pub type RRicsv = i64;
+pub const R_RISCV_32: RRicsv = 0;
+pub const R_RISCV_64: RRicsv = 1;
+pub const R_RISCV_BRANCH: RRicsv = 2;
+pub const R_RISCV_JAL: RRicsv = 3;
+pub const R_RISCV_CALL:RRicsv = 4;
+pub const R_RISCV_CALL_PLT:RRicsv = 5;
+pub const R_RISCV_TLS_GOT_HI20:RRicsv =6;
+pub const R_RISCV_PCREL_HI20: RRicsv = 7;
+pub const R_RISCV_HI20:RRicsv = 8;
+pub const R_RISCV_LO12_I: RRicsv = 9;
+pub const R_RISCV_LO12_S: RRicsv = 10;
+pub const R_RISCV_TPREL_LO12_I: RRicsv = 11;
+pub const R_RISCV_TPREL_LO12_S: RRicsv = 12;
 
 
 #[allow(dead_code)]

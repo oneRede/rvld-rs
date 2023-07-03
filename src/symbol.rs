@@ -3,19 +3,6 @@ use crate::elf::Sym;
 use crate::section_fragment::SectionFragment;
 use crate::{input_section::InputSection, object_file::ObjectFile};
 
-// type Symbol struct {
-// 	File     *ObjectFile
-// 	Name     string
-// 	Value    uint64
-// 	SymIdx   int
-// 	GotTpIdx int32
-
-// 	InputSection    *InputSection
-// 	SectionFragment *SectionFragment
-
-// 	Flags uint32
-// }
-
 #[allow(dead_code)]
 pub struct Symbol<'a> {
     pub name: &'a str,
@@ -90,6 +77,13 @@ impl<'a> Symbol<'a> {
             return unsafe { self.input_section.unwrap().as_ref().unwrap().get_addr()  + self.value};
         };
         return self.value
+    }
+    // func (s *Symbol) GetGotTpAddr(ctx *Context) uint64 {
+    //     return ctx.Got.Shdr.Addr + uint64(s.GotTpIdx)*8
+    // }
+
+    pub fn get_got_tp_addr(&self, ctx: &Context) -> u64{
+        0
     }
 
 

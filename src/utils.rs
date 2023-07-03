@@ -1,4 +1,8 @@
-use std::{process::exit, slice, mem};
+use std::{
+    mem,
+    process::exit,
+    slice, usize,
+};
 
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
@@ -84,6 +88,22 @@ where
         data = &mut data[sz..];
     }
     res
+}
+
+#[allow(dead_code)]
+pub fn bit(val:u32, pos: i32) -> u32 {
+    (val >> pos) & 1
+}
+
+#[allow(dead_code)]
+pub fn bits(val: u32, hi: usize, lo: usize) -> u32
+{
+    (val >> lo) & ((1 << ((hi - lo) + 1)) - 1)
+}
+
+#[allow(dead_code)]
+pub fn sign_extend(val:u64, size: i32) -> u64{
+    val << (63-size) >> (63 -size)
 }
 
 #[test]

@@ -1,10 +1,16 @@
 use std::collections::HashMap;
 
 use crate::{
+    chunk::Chunk,
+    got_section::GotSection,
     machine_type::{MachineType, MACHINE_TYPE_NONE},
     merged_section::MergedSection,
     object_file::ObjectFile,
-    symbol::Symbol, output_ehdr::OutputEhdr, chunk::{Chunk}, elf::{Sym}, output_shdr::OutputShdr, output_phdr::OutputPhdr,
+    output_ehdr::OutputEhdr,
+    output_phdr::OutputPhdr,
+    output_section::OutputSection,
+    output_shdr::OutputShdr,
+    symbol::Symbol,
 };
 
 #[allow(dead_code)]
@@ -18,16 +24,19 @@ pub struct ContextArgs {
 pub struct Context<'a> {
     pub args: ContextArgs,
     pub buf: Vec<u8>,
+
     pub ehdr: OutputEhdr,
     pub shdr: OutputShdr,
     pub phdr: OutputPhdr,
+    pub got: GotSection<'a>,
+
     pub tp_addr: u64,
+    pub output_section: Vec<OutputSection<'a>>,
+
     pub objs: Vec<*mut ObjectFile<'a>>,
     pub chunks: Option<Vec<*mut Chunk>>,
     pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
     pub merged_sections: Vec<*mut MergedSection>,
-    pub internal_obj: Option<*mut ObjectFile<'a>>,
-    pub internal_esyms: Vec<Sym>,
 }
 
 #[allow(dead_code)]
@@ -40,16 +49,19 @@ impl<'a> Context<'a> {
                 library_paths: vec![],
             },
             buf: vec![],
+
             ehdr: OutputEhdr::new(),
             shdr: OutputShdr::new(),
             phdr: OutputPhdr::new(),
+            got: GotSection::new(),
+
             tp_addr: 0,
+            output_section: vec![],
+
             objs: vec![],
             chunks: None,
             symbol_map: HashMap::new(),
             merged_sections: vec![],
-            internal_esyms: vec![],
-            internal_obj: None
         }
     }
 }
