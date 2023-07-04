@@ -31,10 +31,10 @@ pub struct Context<'a> {
     pub got: GotSection<'a>,
 
     pub tp_addr: u64,
-    pub output_section: Vec<OutputSection<'a>>,
+    pub output_sections: Vec<*mut OutputSection<'a>>,
 
     pub objs: Vec<*mut ObjectFile<'a>>,
-    pub chunks: Option<Vec<*mut Chunk>>,
+    pub chunks: Option<*mut Vec<*mut Chunk>>,
     pub symbol_map: HashMap<&'static str, *mut Symbol<'a>>,
     pub merged_sections: Vec<*mut MergedSection>,
 }
@@ -56,7 +56,7 @@ impl<'a> Context<'a> {
             got: GotSection::new(),
 
             tp_addr: 0,
-            output_section: vec![],
+            output_sections: vec![],
 
             objs: vec![],
             chunks: None,

@@ -1,8 +1,4 @@
-use std::{
-    mem,
-    process::exit,
-    slice, usize,
-};
+use std::{mem, process::exit, slice, usize};
 
 pub fn fatal(v: &str) {
     println!("rvld: fatal: {:?}", v);
@@ -55,10 +51,10 @@ pub fn all_zeros(bs: &[u8]) -> bool {
 }
 
 #[allow(dead_code)]
-pub fn remove_if<T>(elems: &Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<&T> {
+pub fn remove_if<T>(elems: Vec<T>, mut func: impl FnMut(&T) -> bool) -> Vec<T> {
     let mut new_elems = vec![];
     for elem in elems.into_iter() {
-        if func(elem) {
+        if func(&elem) {
             continue;
         }
         new_elems.push(elem);
@@ -91,19 +87,31 @@ where
 }
 
 #[allow(dead_code)]
-pub fn bit(val:u32, pos: i32) -> u32 {
+fn has_single_bit(n: u64) -> bool {
+    n & (n - 1) == 0
+}
+
+#[allow(dead_code)]
+fn bit_ceil(val: u64) -> u64 {
+    if has_single_bit(val) {
+        return val;
+    }
+    return 1 << (64 - val.leading_zeros());
+}
+
+#[allow(dead_code)]
+pub fn bit(val: u32, pos: i32) -> u32 {
     (val >> pos) & 1
 }
 
 #[allow(dead_code)]
-pub fn bits(val: u32, hi: usize, lo: usize) -> u32
-{
+pub fn bits(val: u32, hi: usize, lo: usize) -> u32 {
     (val >> lo) & ((1 << ((hi - lo) + 1)) - 1)
 }
 
 #[allow(dead_code)]
-pub fn sign_extend(val:u64, size: i32) -> u64{
-    val << (63-size) >> (63 -size)
+pub fn sign_extend(val: u64, size: i32) -> u64 {
+    val << (63 - size) >> (63 - size)
 }
 
 #[test]

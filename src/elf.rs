@@ -15,8 +15,10 @@ pub const ELF_UNDEF: u16 = 0;
 pub const PHDR_SIZE: usize = mem::size_of::<Phdr>();
 pub const RELA_SIZE: usize = mem::size_of::<Rela>();
 
+pub const IMAGE_BASE: u64 = 0x200000;
+
 pub const R_RISCV_NONE: u32 = 0;
-pub const R_RISCV_RELAX:  u32 = 0;
+pub const R_RISCV_RELAX: u32 = 0;
 
 pub const SHF_GROUP: u64 = 0;
 pub const SHF_COMPRESSED: u64 = 0;
@@ -27,6 +29,7 @@ pub const SHF_LINK_ORDER: u64 = 0;
 pub const SHF_ALLOC: u64 = 0;
 pub const SHF_WRITE: u64 = 0;
 pub const SHF_EXECINSTR: u64 = 0;
+pub const SHF_TLS: u64 = 0;
 
 pub const SHT_GROUP: u32 = 0;
 pub const SHT_SYMTAB: u32 = 1;
@@ -37,6 +40,7 @@ pub const SHT_NULL: u32 = 5;
 pub const SHT_SYMTAB_SHNDX: u32 = 6;
 pub const SHT_NOBITS: u32 = 0;
 pub const SHT_PROGBITS: u32 = 0;
+pub const SHT_NOTE: u32 = 0;
 
 pub const SHN_XINDEX: u16 = 7;
 
@@ -58,6 +62,10 @@ pub const EM_RISCV: u16 = 0;
 pub const PF_W: u32 = 0;
 pub const PF_X: u32 = 0;
 
+pub const PT_NOTE: u64 = 0;
+pub const PT_LOAD: u64 = 0;
+pub const PT_TLS: u64 = 0;
+
 #[allow(dead_code)]
 pub const PF_R: u32 = 0;
 
@@ -69,16 +77,15 @@ pub const R_RISCV_32: RRicsv = 0;
 pub const R_RISCV_64: RRicsv = 1;
 pub const R_RISCV_BRANCH: RRicsv = 2;
 pub const R_RISCV_JAL: RRicsv = 3;
-pub const R_RISCV_CALL:RRicsv = 4;
-pub const R_RISCV_CALL_PLT:RRicsv = 5;
-pub const R_RISCV_TLS_GOT_HI20:RRicsv =6;
+pub const R_RISCV_CALL: RRicsv = 4;
+pub const R_RISCV_CALL_PLT: RRicsv = 5;
+pub const R_RISCV_TLS_GOT_HI20: RRicsv = 6;
 pub const R_RISCV_PCREL_HI20: RRicsv = 7;
-pub const R_RISCV_HI20:RRicsv = 8;
+pub const R_RISCV_HI20: RRicsv = 8;
 pub const R_RISCV_LO12_I: RRicsv = 9;
 pub const R_RISCV_LO12_S: RRicsv = 10;
 pub const R_RISCV_TPREL_LO12_I: RRicsv = 11;
 pub const R_RISCV_TPREL_LO12_S: RRicsv = 12;
-
 
 #[allow(dead_code)]
 #[repr(C)]

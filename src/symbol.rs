@@ -5,13 +5,15 @@ use crate::{input_section::InputSection, object_file::ObjectFile};
 
 #[allow(dead_code)]
 pub struct Symbol<'a> {
+    pub object_file: Option<*mut ObjectFile<'a>>,
     pub name: &'a str,
     pub value: u64,
     pub symidx: i32,
     pub got_tp_id: i32,
-    pub object_file: Option<*mut ObjectFile<'a>>,
+    
     pub input_section: Option<*mut InputSection<'a>>,
     pub section_fragment: Option<*mut SectionFragment>,
+    
     pub flags: u32,
 }
 
@@ -78,13 +80,8 @@ impl<'a> Symbol<'a> {
         };
         return self.value
     }
-    // func (s *Symbol) GetGotTpAddr(ctx *Context) uint64 {
-    //     return ctx.Got.Shdr.Addr + uint64(s.GotTpIdx)*8
-    // }
 
     pub fn get_got_tp_addr(&self, ctx: &Context) -> u64{
-        0
+        ctx.got.chunk.shdr.addr + (self.got_tp_id as u64 * 8u64)
     }
-
-
 }

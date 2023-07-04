@@ -7,53 +7,6 @@ pub struct OutputSection<'a> {
     pub idx: u32,
 }
 
-// func NewOutputSection(
-// 	name string, typ uint32, flags uint64, idx uint32) *OutputSection {
-// 	o := &OutputSection{Chunk: NewChunk()}
-// 	o.Name = name
-// 	o.Shdr.Type = typ
-// 	o.Shdr.Flags = flags
-// 	o.Idx = idx
-// 	return o
-// }
-
-// func (o *OutputSection) CopyBuf(ctx *Context) {
-// 	if o.Shdr.Type == uint32(elf.SHT_NOBITS) {
-// 		return
-// 	}
-
-// 	base := ctx.Buf[o.Shdr.Offset:]
-// 	for _, isec := range o.Members {
-// 		isec.WriteTo(ctx, base[isec.Offset:])
-// 	}
-// }
-
-// func GetOutputSection(
-// 	ctx *Context, name string, typ, flags uint64) *OutputSection {
-// 	name = GetOutputName(name, flags)
-// 	flags = flags &^ uint64(elf.SHF_GROUP) &^
-// 		uint64(elf.SHF_COMPRESSED) &^ uint64(elf.SHF_LINK_ORDER)
-
-// 	find := func() *OutputSection {
-// 		for _, osec := range ctx.OutputSections {
-// 			if name == osec.Name && typ == uint64(osec.Shdr.Type) &&
-// 				flags == osec.Shdr.Flags {
-// 				return osec
-// 			}
-// 		}
-// 		return nil
-// 	}
-
-// 	if osec := find(); osec != nil {
-// 		return osec
-// 	}
-
-// 	osec := NewOutputSection(name, uint32(typ), flags,
-// 		uint32(len(ctx.OutputSections)))
-// 	ctx.OutputSections = append(ctx.OutputSections, osec)
-// 	return osec
-// }
-
 #[allow(dead_code)]
 impl<'a> OutputSection<'a> {
     pub fn new(name: String, ty: u32, flags: u64, idx: u32) -> Self {
@@ -69,7 +22,7 @@ impl<'a> OutputSection<'a> {
 
     }
 
-    pub fn copy_buf(&self, ctx: Context){
+    pub fn copy_buf(&self, ctx: Context<'a>){
         if self.chunk.shdr.shdr_type == SHT_NOBITS{
             return
         }
@@ -81,14 +34,27 @@ impl<'a> OutputSection<'a> {
         }
     }
 
-    pub fn get_output_section(ctx: Context, mut name:String, ty: u64, mut flags: u64){
+    pub fn get_output_section(mut ctx: Context<'a>, mut name:String, ty: u64, mut flags: u64) -> *mut OutputSection{
         name = get_output_name(&name, flags);
         flags = flags &! SHF_GROUP &! SHF_COMPRESSED &! SHF_LINK_ORDER;
 
-        let find = || {
-            // for osec in ctx.
+        let find = || -> Option<*mut OutputSection<'_>>{
+            for osec in &ctx.output_sections{
+                if name == unsafe { osec.as_ref().unwrap() }.chunk.name && ty == unsafe { osec.as_ref().unwrap().chunk.shdr.shdr_type.into() } 
+                && flags == unsafe { osec.as_ref().unwrap().chunk.shdr.flags } {
+                    return Some(*osec)
+                }
+            }
+            None
         };
+
+        let osec = find();
+        if !osec.is_none() {
+            return osec.unwrap()
+        }
+        let os_len = ctx.output_sections.len() as u32;
+        let osec: *mut OutputSection = Box::leak(Box::new(Self::new(String::from(&name), ty as u32, flags, os_len)));
+        ctx.output_sections.push(osec);
+        return osec
     }
-
-
 }
