@@ -25,7 +25,7 @@ impl OutputShdr {
         let base = &mut ctx.buf[*(&self.chunk.shdr.offset) as usize..];
         write(base, Shdr::new());
 
-        for chunk in ctx.chunks.unwrap() {
+        for chunk in unsafe { ctx.chunks.unwrap().as_ref().unwrap() } {
             let shndx = unsafe { chunk.as_ref().unwrap().get_shndx() } as usize;
             if shndx > 0 {
                 write(&mut base[shndx..], unsafe {

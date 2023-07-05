@@ -20,6 +20,6 @@ impl SectionFragment {
     }
 
     pub fn get_addr(&self) -> u64{
-        unsafe { self.output.as_ref().unwrap().chunk.shdr.addr + self.offset as u64 } 
+        unsafe { self.output.as_ref().unwrap().chunk.as_ref().unwrap().shdr.addr + self.offset as u64 } 
     }
 }

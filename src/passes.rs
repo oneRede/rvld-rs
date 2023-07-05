@@ -1,12 +1,14 @@
-use std::vec;
+use std::{process::id, vec, cmp};
 
 use crate::{
     chunk::{Chunk, Chunker},
     context::Context,
     elf::{IMAGE_BASE, SHF_ALLOC, SHF_TLS, SHT_NOBITS},
+    file,
+    input_section::InputSection,
     object_file::ObjectFile,
     output_ehdr::OutputEhdr,
-    utils::align_to, file,
+    utils::align_to,
 };
 
 #[allow(dead_code)]
@@ -95,7 +97,7 @@ pub fn is_tbss(chunk: *mut Chunk) -> bool {
 }
 
 #[allow(dead_code)]
-fn set_output_section_offsets(ctx: *mut Context) -> u64{
+fn set_output_section_offsets(ctx: *mut Context) -> u64 {
     let mut addr = IMAGE_BASE;
     let chunks = unsafe { ctx.as_ref().unwrap().chunks.unwrap() };
     for chunk in unsafe { chunks.as_ref().unwrap() } {
@@ -120,27 +122,126 @@ fn set_output_section_offsets(ctx: *mut Context) -> u64{
         shdr.offset = shdr.addr - unsafe { first.as_ref().unwrap().shdr.addr };
         i += 1;
         if i >= unsafe { chunks.as_ref().unwrap().len() }
-            || unsafe { &chunks.as_mut().unwrap()[i].as_ref().unwrap().get_shdr().flags } & SHF_ALLOC == 0
+            || unsafe {
+                &chunks.as_mut().unwrap()[i]
+                    .as_ref()
+                    .unwrap()
+                    .get_shdr()
+                    .flags
+            } & SHF_ALLOC
+                == 0
         {
             break;
         }
     }
 
-    let last_shdr = unsafe { chunks.as_ref().unwrap()[i-1].as_ref().unwrap().get_shdr() };
+    let last_shdr = unsafe { chunks.as_ref().unwrap()[i - 1].as_ref().unwrap().get_shdr() };
     let mut file_off = last_shdr.offset + last_shdr.size;
 
-    for j in 0..unsafe { chunks.as_ref().unwrap().len() }{
+    for j in 0..unsafe { chunks.as_ref().unwrap().len() } {
         let mut shdr = unsafe { chunks.as_ref().unwrap()[i].as_ref().unwrap().get_shdr() };
         file_off = align_to(file_off, shdr.addr_align);
         shdr.offset = file_off;
         file_off += shdr.size;
     }
-     
-    // error
-    // unsafe { ctx.as_mut().unwrap().phdr.update_shdr(ctx) };
+
+    unsafe {
+        ctx.as_mut()
+            .unwrap()
+            .phdr
+            .update_shdr(ctx.as_mut().unwrap())
+    };
     file_off
 }
 
+#[allow(dead_code)]
+pub fn bin_sections(ctx: Context) {
+    let mut group: Vec<*mut Vec<*mut InputSection>> = vec![];
+    for _i in 0..unsafe { ctx.output_sections.as_ref().unwrap() }.len() {
+        group.push(Box::leak(Box::new(vec![])))
+    }
+    for file in &ctx.objs {
+        for isec in unsafe { &file.as_ref().unwrap().input_sections } {
+            let isec_op = isec.is_none();
+            let isec_ref = unsafe { isec.unwrap().as_ref().unwrap() };
+            if isec_op || isec_ref.is_alive {
+                continue;
+            }
+            let idx = unsafe { isec_ref.output_section.unwrap().as_ref().unwrap().idx as usize };
+            unsafe { group[idx].as_mut().unwrap().push(isec.unwrap()) };
+        }
+    }
+    let idx = 0;
+    for osec in unsafe { ctx.output_sections.as_ref().unwrap() } {
+        unsafe { osec.as_mut().unwrap().members = group[idx] };
+    }
+}
+
+#[allow(dead_code)]
+pub fn collect_output_sections(ctx: Context) -> Vec<*mut Chunk> {
+    let mut osecs: Vec<*mut Chunk> = vec![];
+    for osec in unsafe { ctx.output_sections.as_ref().unwrap() } {
+        if unsafe { osec.as_ref().unwrap().members.as_ref().unwrap().len() } > 0 {
+            osecs.push(unsafe { osec.as_ref().unwrap().chunk })
+        }
+    }
+
+    for osec in ctx.merged_sections {
+        if unsafe { osec.as_ref().unwrap().chunk.as_ref().unwrap().shdr.size } > 0 {
+            osecs.push(unsafe { osec.as_ref().unwrap().chunk })
+        }
+    }
+
+    osecs
+}
+
+#[allow(dead_code)]
+pub fn compute_section_sizes(ctx: Context) {
+    for osec in unsafe { ctx.output_sections.as_ref().unwrap() }{
+        let mut offset = 0u64;
+        let mut p2_align = 0u64;
+
+        for isec in unsafe { osec.as_ref().unwrap().members.as_ref().unwrap() } {
+            offset = align_to(offset, 1<<p2_align);
+            unsafe { isec.as_mut().unwrap().offset = offset as u32 };
+            offset += unsafe { isec.as_ref().unwrap().sh_size as u64};
+            p2_align = cmp::max(p2_align, unsafe { isec.as_ref().unwrap().p2_align as u64})
+        }
+
+        unsafe { osec.as_mut().unwrap().chunk.as_mut().unwrap().shdr.size = offset };
+        unsafe { osec.as_mut().unwrap().chunk.as_mut().unwrap().shdr.addr_align = 1 << p2_align };
+    }
+}
+
+#[allow(dead_code)]
+pub fn sort_output_sections(ctx: Context){
+    let rank = |chunk: Chunk| -> u32{
+        let ty = chunk.get_shdr().shdr_type;
+        let flags = chunk.get_shdr().flags;
+
+        if flags&SHF_ALLOC ==0{
+            return u32::MAX - 1
+        }
+        // if chunk == ctx.shdr {
+        //     return i32::MAX
+        // }
+        0
+    };
+}
+
+#[allow(dead_code)]
+pub fn compute_merged_sections_size(ctx: Context){
+    for osec in ctx.merged_sections {
+        unsafe { osec.as_mut().unwrap().assign_offsets() }
+    }
+}
+
+#[allow(dead_code)]
+pub fn scan_relocations(ctx: Context){
+    for file in ctx.objs{
+        
+    }
+}
 // func SetOutputSectionOffsets(ctx *Context) uint64 {
 // 	addr := IMAGE_BASE
 // 	for _, chunk := range ctx.Chunks {

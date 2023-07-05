@@ -31,7 +31,7 @@ pub struct Context<'a> {
     pub got: GotSection<'a>,
 
     pub tp_addr: u64,
-    pub output_sections: Vec<*mut OutputSection<'a>>,
+    pub output_sections: *mut Vec<*mut OutputSection<'a>>,
 
     pub objs: Vec<*mut ObjectFile<'a>>,
     pub chunks: Option<*mut Vec<*mut Chunk>>,
@@ -56,7 +56,7 @@ impl<'a> Context<'a> {
             got: GotSection::new(),
 
             tp_addr: 0,
-            output_sections: vec![],
+            output_sections: Box::leak(Box::new(vec![])),
 
             objs: vec![],
             chunks: None,

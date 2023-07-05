@@ -232,10 +232,29 @@ impl<'a> InputSection<'a> {
                 .unwrap()
                 .as_ref()
                 .unwrap()
-                .chunk
+                .chunk.as_ref().unwrap()
                 .shdr
                 .addr
                 + self.offset as u64
+        }
+    }
+
+    // func (i *InputSection) ScanRelocations() {
+    //     for _, rel := range i.GetRels() {
+    //         sym := i.File.Symbols[rel.Sym]
+    //         if sym.File == nil {
+    //             continue
+    //         }
+    
+    //         if rel.Type == uint32(elf.R_RISCV_TLS_GOT_HI20) {
+    //             sym.Flags |= NeedsGotTp
+    //         }
+    //     }
+    // }
+
+    pub fn scan_relocations(&mut self) {
+        for rel in self.get_rels(){
+            // let sym = self.object_file.as_ref().unwrap()
         }
     }
 }

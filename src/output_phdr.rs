@@ -15,7 +15,7 @@ const PAGE_SIZE: u64 = 4096;
 
 #[allow(dead_code)]
 pub struct OutputPhdr {
-    pub chunk: Chunk,
+    pub chunk: *mut Chunk,
     pub phdrs: *mut Vec<Phdr>,
 }
 
@@ -29,7 +29,7 @@ impl OutputPhdr {
         let mut chunk = Chunk::new();
         chunk.shdr = shdr;
         Self {
-            chunk: chunk,
+            chunk: Box::leak(Box::new(chunk)),
             phdrs: Box::leak(Box::new(vec![])),
         }
     }
@@ -46,7 +46,7 @@ impl OutputPhdr {
         ret
     }
 
-    pub fn create_phdr(&self, mut ctx: Context) -> *mut Vec<Phdr> {
+    pub fn create_phdr(&self, ctx: &mut Context) -> *mut Vec<Phdr> {
         let vec: *mut Vec<Phdr> = Box::leak(Box::new(vec![]));
         let define = |ty: u64, flags: u64, min_align: i64, chunk: *mut Chunk| {
             let mut phdr = Phdr::new();
@@ -55,7 +55,7 @@ impl OutputPhdr {
             phdr.align = cmp::max(min_align as u64, unsafe {
                 chunk.as_ref().unwrap().get_shdr().addr_align
             });
-            phdr.offset = self.chunk.get_shdr().offset;
+            phdr.offset = unsafe { self.chunk.as_ref().unwrap().get_shdr().offset };
 
             if unsafe { chunk.as_ref().unwrap().get_shdr().shdr_type } == SHT_NOBITS {
                 phdr.file_size = 0;
@@ -85,7 +85,7 @@ impl OutputPhdr {
             unsafe { vec.as_mut().unwrap().push(phdr) }
         };
 
-        define(PT_PHDR, PF_W.into(), 8, Box::leak(Box::new(ctx.phdr.chunk)));
+        define(PT_PHDR, PF_W.into(), 8, ctx.phdr.chunk);
 
         let is_tls = |chunk: *mut Chunk| -> bool {
             unsafe { chunk.as_ref().unwrap().get_shdr().flags & SHF_TLS != 0 }
@@ -175,12 +175,12 @@ impl OutputPhdr {
         vec
     }
 
-    pub fn update_shdr(&mut self, ctx: Context){
+    pub fn update_shdr(&mut self, ctx: &mut Context){
         self.phdrs = self.create_phdr(ctx);
-        self.chunk.shdr.size = unsafe { (self.phdrs.as_ref().unwrap().len() * PHDR_SIZE) as u64} ;
+        unsafe { self.chunk.as_mut().unwrap().shdr.size = unsafe { (self.phdrs.as_ref().unwrap().len() * PHDR_SIZE) as u64} } ;
     }
 
     pub fn copy_buf(&self, ctx:&mut Context){
-        write(&mut ctx.buf[self.chunk.shdr.offset as usize..], self.phdrs)
+        write(&mut ctx.buf[unsafe { self.chunk.as_ref().unwrap().shdr.offset } as usize..], self.phdrs)
     }
 }

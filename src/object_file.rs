@@ -4,7 +4,7 @@ use crate::{
     context::Context,
     elf::{
         elf_get_name, Shdr, Sym, SHF_MERGE, SHF_STRINGS, SHN_XINDEX, SHT_GROUP, SHT_NULL, SHT_REL,
-        SHT_RELA, SHT_STRTAB, SHT_SYMTAB, SHT_SYMTAB_SHNDX,
+        SHT_RELA, SHT_STRTAB, SHT_SYMTAB, SHT_SYMTAB_SHNDX, SHF_ALLOC,
     },
     file::ElfFile,
     input_file::{new_input_file, InputFile},
@@ -335,6 +335,22 @@ impl<'a> ObjectFile<'a> {
                 }
                 unsafe { sym.as_mut().unwrap().set_section_fragment(frag.unwrap()) };
                 unsafe { sym.as_mut().unwrap().value = frag_offset as u64 };
+            }
+        }
+    }
+
+    pub fn skip_eh_fragment_sections(&self) {
+        for isec in &self.input_sections{
+            if !isec.unwrap().is_null() && unsafe { isec.unwrap().as_ref().unwrap().is_alive } && unsafe { isec.unwrap().as_ref().unwrap().name() } == ".eh_frame"{
+                unsafe { isec.unwrap().as_mut().unwrap().is_alive = false }
+            }
+        }
+    }
+    
+    pub fn scan_relocations(&self) {
+        for isec in &self.input_sections{
+            if !isec.unwrap().is_null() && unsafe { isec.unwrap().as_ref().unwrap().is_alive } && unsafe { isec.unwrap().as_ref().unwrap().shdr().flags }&SHF_ALLOC != 0 {
+                unsafe { isec.unwrap().as_mut().unwrap().scan_relocations() }
             }
         }
     }
