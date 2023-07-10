@@ -3,6 +3,8 @@ use crate::elf::Sym;
 use crate::section_fragment::SectionFragment;
 use crate::{input_section::InputSection, object_file::ObjectFile};
 
+pub const NEEDS_GOT_TP: u32 = 1 << 0;
+
 #[allow(dead_code)]
 pub struct Symbol<'a> {
     pub object_file: Option<*mut ObjectFile<'a>>,

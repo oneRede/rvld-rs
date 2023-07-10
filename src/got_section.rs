@@ -27,10 +27,10 @@ impl<'a> GotSection<'a> {
         }
     }
 
-    pub fn add_got_tp_symbol(&mut self, mut sym: Symbol<'a>) {
-        sym.got_tp_id = (self.chunk.shdr.size / 8).try_into().unwrap();
+    pub fn add_got_tp_symbol(&mut self, sym: *mut Symbol<'a>) {
+        unsafe { sym.as_mut().unwrap().got_tp_id = (self.chunk.shdr.size / 8).try_into().unwrap() };
         self.chunk.shdr.size += 8;
-        self.got_tp_syms.push(Box::leak(Box::new(sym)));
+        self.got_tp_syms.push(sym);
     }
 
     pub fn get_entries(&self, ctx: *mut Context) -> Vec<GotEntry> {
