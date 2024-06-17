@@ -34,10 +34,15 @@ impl OutputEhdr {
         ehdr.hdr_type = ET_EXEC;
         ehdr.machine = EM_RISCV;
         ehdr.version = EV_CURRENT;
-
+        ehdr.entry = ctx.get_entry_addr();
+        ehdr.ph_off = unsafe { ctx.phdr.chunk.as_ref().unwrap().shdr.offset };
+        ehdr.sh_off = ctx.shdr.chunk.shdr.offset;
+        ehdr.flags = ctx.get_flags();
         ehdr.eh_size = EHDR_SIZE as u16;
         ehdr.ph_ent_size = PHDR_SIZE as u16;
+        ehdr.ph_num = (unsafe { ctx.phdr.chunk.as_ref().unwrap().shdr.size } / PHDR_SIZE as u64) as u16;
         ehdr.sh_ent_size = SHDR_SIZE as u16;
+        ehdr.sh_num = (ctx.shdr.chunk.shdr.size / SHDR_SIZE as u64) as u16;
 
         let buf =
             unsafe { std::slice::from_raw_parts((&ehdr as *const Ehdr) as *const u8, EHDR_SIZE) };

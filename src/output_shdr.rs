@@ -1,7 +1,7 @@
 use crate::{
-    chunk::{Chunk, Chunker},
+    chunk::Chunk,
     context::Context,
-    elf::Shdr,
+    elf::{Shdr, SHDR_SIZE},
     utils::write,
 };
 
@@ -21,17 +21,12 @@ impl OutputShdr {
         Self { chunk: chunk }
     }
 
-    pub fn update_shdr(&self, mut ctx: Context) {
+    pub fn update_shdr(&mut self, _ctx: Context) {
+        self.chunk.shdr.size = 1 * SHDR_SIZE as u64;
+    }
+
+    pub fn copy_buf(&self, mut ctx: Context) {
         let base = &mut ctx.buf[*(&self.chunk.shdr.offset) as usize..];
         write(base, Shdr::new());
-
-        for chunk in unsafe { ctx.chunks.unwrap().as_ref().unwrap() } {
-            let shndx = unsafe { chunk.as_ref().unwrap().get_shndx() } as usize;
-            if shndx > 0 {
-                write(&mut base[shndx..], unsafe {
-                    chunk.as_ref().unwrap().get_shdr()
-                })
-            }
-        }
     }
 }

@@ -16,6 +16,7 @@ pub const PHDR_SIZE: usize = mem::size_of::<Phdr>();
 pub const RELA_SIZE: usize = mem::size_of::<Rela>();
 
 pub const IMAGE_BASE: u64 = 0x200000;
+pub const EF_RISCV_RVC: u32 = 1;
 
 pub const R_RISCV_NONE: u32 = 0;
 pub const R_RISCV_RELAX: u32 = 0;

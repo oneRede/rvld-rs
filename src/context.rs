@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     chunk::Chunk,
+    elf::EF_RISCV_RVC,
     got_section::GotSection,
     machine_type::{MachineType, MACHINE_TYPE_NONE},
     merged_section::MergedSection,
@@ -63,5 +64,45 @@ impl<'a> Context<'a> {
             symbol_map: HashMap::new(),
             merged_sections: vec![],
         }
+    }
+
+    pub fn get_entry_addr(&self) -> u64 {
+        for osec in unsafe { self.output_sections.as_ref().unwrap() } {
+            if unsafe { &osec.as_ref().unwrap().chunk.as_ref().unwrap().name } == ".text" {
+                return unsafe { osec.as_ref().unwrap().chunk.as_ref().unwrap().shdr.addr };
+            }
+        }
+        return 0;
+    }
+
+    pub fn get_flags(&self) -> u32 {
+        assert!(self.objs.len() > 0);
+        let mut flags = unsafe {
+            self.objs[0]
+                .as_ref()
+                .unwrap()
+                .input_file
+                .as_ref()
+                .unwrap()
+                .get_ehdr()
+                .flags
+        };
+        for obj in &self.objs[1..] {
+            if unsafe {
+                obj.as_ref()
+                    .unwrap()
+                    .input_file
+                    .as_ref()
+                    .unwrap()
+                    .get_ehdr()
+                    .flags
+            } & EF_RISCV_RVC
+                != 0
+            {
+                flags |= EF_RISCV_RVC;
+                break;
+            }
+        }
+        return flags;
     }
 }

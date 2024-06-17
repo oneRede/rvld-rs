@@ -66,6 +66,7 @@ pub fn new_input_file(file: ElfFile) -> *mut InputFile {
     return Box::leak(Box::new(f));
 }
 
+#[allow(dead_code)]
 impl<'a> InputFile<'a> {
     pub fn get_bytes_from_shdr(&self, shdr: &Shdr) -> &'a [u8] {
         let end = (shdr.offset + shdr.size) as usize;
@@ -83,7 +84,6 @@ impl<'a> InputFile<'a> {
         &self.get_bytes_from_shdr(&self.elf_sections[idx as usize])
     }
 
-    #[allow(dead_code)]
     pub fn fillup_elf_syms(&mut self, shdr: Shdr) {
         let mut bs = self.get_bytes_from_shdr(&shdr);
         let nums = bs.len() / SYM_SIZE;
@@ -93,7 +93,6 @@ impl<'a> InputFile<'a> {
         }
     }
 
-    #[allow(dead_code)]
     pub fn find_section(&self, ty: u32) -> Option<Shdr> {
         for i in 0..self.elf_sections.len() {
             let shdr = self.elf_sections[i];
@@ -102,5 +101,9 @@ impl<'a> InputFile<'a> {
             }
         }
         return None;
+    }
+
+    pub fn get_ehdr(&self) -> Ehdr {
+        return read::<Ehdr>(self.file.contents);
     }
 }
