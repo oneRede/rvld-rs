@@ -1,4 +1,4 @@
-use std::{cmp};
+use std::cmp;
 
 use crate::{
     chunk::{Chunk, Chunker},
@@ -177,7 +177,7 @@ impl OutputPhdr {
 
     pub fn update_shdr(&mut self, ctx: &mut Context){
         self.phdrs = self.create_phdr(ctx);
-        unsafe { self.chunk.as_mut().unwrap().shdr.size = unsafe { (self.phdrs.as_ref().unwrap().len() * PHDR_SIZE) as u64} } ;
+        unsafe { self.chunk.as_mut().unwrap().shdr.size = (self.phdrs.as_ref().unwrap().len() * PHDR_SIZE) as u64};
     }
 
     pub fn copy_buf(&self, ctx:&mut Context){

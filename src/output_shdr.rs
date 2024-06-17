@@ -7,7 +7,7 @@ use crate::{
 
 #[allow(dead_code)]
 pub struct OutputShdr {
-    chunk: Chunk,
+    pub chunk: Chunk,
 }
 
 #[allow(dead_code)]

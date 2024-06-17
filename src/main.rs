@@ -149,7 +149,7 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
     let arg = UnsafeCell::new("");
     let _arg = arg.get();
 
-    let mut read_arg = |name: &str| -> bool {
+    let read_arg = |name: &str| -> bool {
         for opt in dashes(name) {
             if unsafe { (*_args).get(0) }.unwrap() == &opt {
                 if unsafe { (*_args).len() } == 1 {
@@ -172,7 +172,7 @@ fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
         return false;
     };
 
-    let mut read_flag = |name: &str| -> bool {
+    let read_flag = |name: &str| -> bool {
         for opt in dashes(name) {
             if unsafe { (*_args).get(0) }.unwrap() == &opt {
                 unsafe { *_args = &(*_args)[1..] }

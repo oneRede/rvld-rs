@@ -1,6 +1,7 @@
 use crate::{context::Context, elf::Shdr};
 
 #[allow(dead_code)]
+#[derive(PartialEq, PartialOrd)]
 pub struct Chunk {
     pub name: String,
     pub shdr: Shdr,

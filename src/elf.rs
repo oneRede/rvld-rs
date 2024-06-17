@@ -132,6 +132,7 @@ impl Ehdr {
 #[allow(dead_code)]
 #[repr(C)]
 #[derive(Clone, Copy)]
+#[derive(PartialEq, PartialOrd)]
 pub struct Shdr {
     pub name: u32,
     pub shdr_type: u32,

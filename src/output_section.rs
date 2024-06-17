@@ -48,11 +48,11 @@ impl<'a> OutputSection<'a> {
     }
 
     pub fn get_output_section(
-        ctx: Context<'a>,
+        ctx: &Context<'a>,
         mut name: String,
         ty: u64,
         mut flags: u64,
-    ) -> *mut OutputSection {
+    ) -> *mut OutputSection<'a> {
         name = get_output_name(&name, flags);
         flags = flags & !SHF_GROUP & !SHF_COMPRESSED & !SHF_LINK_ORDER;
 

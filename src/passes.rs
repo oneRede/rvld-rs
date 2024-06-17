@@ -1,10 +1,9 @@
-use std::{cmp, process::id, vec};
+use std::{cmp, vec};
 
 use crate::{
     chunk::{Chunk, Chunker},
     context::Context,
-    elf::{IMAGE_BASE, SHF_ALLOC, SHF_TLS, SHT_NOBITS},
-    file,
+    elf::{self, IMAGE_BASE, SHF_ALLOC, SHF_TLS, SHT_NOBITS},
     input_section::InputSection,
     object_file::ObjectFile,
     output_ehdr::OutputEhdr,
@@ -139,7 +138,7 @@ fn set_output_section_offsets(ctx: *mut Context) -> u64 {
     let last_shdr = unsafe { chunks.as_ref().unwrap()[i - 1].as_ref().unwrap().get_shdr() };
     let mut file_off = last_shdr.offset + last_shdr.size;
 
-    for j in 0..unsafe { chunks.as_ref().unwrap().len() } {
+    for _j in i..unsafe { chunks.as_ref().unwrap().len() } {
         let mut shdr = unsafe { chunks.as_ref().unwrap()[i].as_ref().unwrap().get_shdr() };
         file_off = align_to(file_off, shdr.addr_align);
         shdr.offset = file_off;
@@ -224,14 +223,47 @@ pub fn compute_section_sizes(ctx: Context) {
 
 #[allow(dead_code)]
 pub fn sort_output_sections(ctx: Context) {
-    let rank = |chunk: Chunk| -> u32 {
+    let rank = |chunk: &Chunk| -> i32 {
         let ty = chunk.get_shdr().shdr_type;
         let flags = chunk.get_shdr().flags;
 
         if flags & SHF_ALLOC == 0 {
-            return u32::MAX - 1;
+            return (u32::MAX - 1) as i32;
         }
-        todo!("unfinished");
+        if chunk == &ctx.shdr.chunk {
+            return i32::MAX;
+        }
+        if chunk == &*unsafe { ctx.ehdr.chunk.as_ref().unwrap() } {
+            return 0;
+        }
+        if chunk == &*unsafe { ctx.phdr.chunk.as_ref().unwrap() } {
+            return 1;
+        }
+        if ty == elf::SHT_NOTE {
+            return 2;
+        }
+
+        let b2i = |b: bool| -> i32 {
+            if b {
+                return 1;
+            }
+            return 0;
+        };
+
+        let writeable = b2i(flags & elf::SHF_WRITE != 0);
+        let not_exec = b2i(flags & elf::SHF_EXECINSTR == 0);
+        let not_tls = b2i(flags & elf::SHF_TLS == 0);
+        let is_bss = b2i(ty == elf::SHT_NOBITS);
+
+        return writeable << 7 | not_exec << 6 | not_tls << 5 | is_bss << 4 as i32;
+    };
+
+    unsafe {
+        ctx.chunks.unwrap().as_mut().unwrap().sort_by(|a, b| {
+            rank(a.as_ref().unwrap())
+                .partial_cmp(&rank(b.as_ref().unwrap()))
+                .unwrap()
+        })
     };
 }
 
