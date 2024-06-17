@@ -93,7 +93,7 @@ fn main() {
 }
 
 #[allow(dead_code)]
-fn parse_args<'a>(ctx: &mut Context) -> Vec<String> {
+fn parse_args(ctx: &mut Context) -> Vec<String> {
     let _f_args: Vec<String> = env::args().collect();
     let f_args: Vec<String> = vec![
         "./ld".to_string(),
