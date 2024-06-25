@@ -218,20 +218,3 @@ fn parse_args(ctx: &mut Context) -> Vec<String> {
     }
     return remaining;
 }
-
-#[test]
-fn test_m() {
-    #[derive(Debug)]
-    struct Arg {
-        cc: Vec<&'static str>,
-    }
-
-    let v = vec!["1", "2", "3"];
-    let mut arg = Arg { cc: v };
-
-    fn change(arg: &mut Arg) {
-        arg.cc = vec!["1", "2"];
-    }
-    change(&mut arg);
-    println!("{:?}", arg);
-}
