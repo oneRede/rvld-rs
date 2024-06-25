@@ -1,4 +1,4 @@
-use std::{env, process::exit};
+use std::process::exit;
 
 mod archive;
 mod chunk;
@@ -37,7 +37,7 @@ use utils::fatal;
 
 #[allow(dead_code)]
 struct Args {
-    raw_args:  &'static [&'static str],
+    raw_args: &'static [&'static str],
     args: &'static [&'static str],
     idx: usize,
     arg: &'static str,
@@ -46,34 +46,21 @@ struct Args {
 #[allow(dead_code)]
 impl Args {
     fn new() -> Self {
-        let args: Vec<String> = env::args().collect();
-        let mut v_args: Vec<&str> = vec![];
-        for s in args.into_iter() {
-            v_args.push(Box::leak(Box::new(s)));
-        }
-        let v_args = Box::leak(Box::new(v_args));
+        let args: Vec<&str> = vec!["./ld", "-plugin", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/liblto_plugin.so", "-plugin-opt=/usr/lib/gcc-cross/riscv64-linux-gnu/10/lto-wrapper", "-plugin-opt=-fresolution=/tmp/ccfKlx09.res", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_eh", "-plugin-opt=-pass-through=-lc", "--sysroot=/", "--build-id", "-hash-style=gnu", "-as-needed", "-melf64lriscv", "-static", "-o", "out/tests/hello/out", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/../../../../riscv64-linux-gnu/lib/crt1.o", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crti.o", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtbeginT.o", "-L.", "-L/usr/lib/gcc-cross/riscv64-linux-gnu/10", "-L/usr/lib/gcc-cross/riscv64-linux-gnu/10/../../../../riscv64-linux-gnu/lib", "-L/usr/lib/riscv64-linux-gnu", "out/tests/hello/a.o", "--start-group", "-lgcc", "-lgcc_eh", "-lc", "--end-group", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtend.o", "/usr/lib/gcc-cross/riscv64-linux-gnu/10/crtn.o"];
+        let args = Box::leak(Box::new(args));
 
         Self {
-            raw_args: v_args,
-            args: &v_args[1..],
+            raw_args: args,
+            args: &args[1..],
             idx: 0,
-            arg: ""
+            arg: "",
         }
-    }
-
-    fn get(&self) -> &str {
-        self.args.get(self.idx).unwrap()
-    }
-
-    fn get_by_idx(&self, idx: usize) -> &str {
-        self.args.get(idx).unwrap()
     }
 }
 
 fn main() {
     let mut ctx = Context::new();
     let remaining = parse_args(&mut ctx);
-
     if ctx.args.emulation == MACHINE_TYPE_NONE {
         for file_name in &remaining {
             if file_name.starts_with("-") {
@@ -135,12 +122,13 @@ fn parse_args(ctx: &mut Context) -> Vec<String> {
         if name.len() == 1 {
             return vec!["-".to_string() + name];
         }
+
         return vec!["-".to_string() + &name, "--".to_string() + &name];
     };
 
     let read_arg = |name: &str, args: &mut Args| -> bool {
         for opt in dashes(name) {
-            if args.get() == &opt {
+            if args.args[0] == &opt {
                 if args.args.len() == 1 {
                     fatal(&format!("option -{}: argument missing", name));
                 }
@@ -154,6 +142,7 @@ fn parse_args(ctx: &mut Context) -> Vec<String> {
             }
             if args.args[0].starts_with(&prefix) {
                 args.arg = &args.args[0][prefix.len()..];
+                args.args = &args.args[1..];
                 return true;
             }
         }
@@ -188,9 +177,7 @@ fn parse_args(ctx: &mut Context) -> Vec<String> {
                 fatal(&format!("unknown -m argument: {}", args.arg));
             }
         } else if read_arg("L", &mut args) {
-            ctx.args
-                .library_paths
-                .push("".to_string() + args.arg);
+            ctx.args.library_paths.push("".to_string() + args.arg);
         } else if read_arg("l", &mut args) {
             remaining.push("-l".to_string() + args.arg);
         } else if read_arg("sysroot", &mut args)
@@ -204,14 +191,12 @@ fn parse_args(ctx: &mut Context) -> Vec<String> {
             || read_arg("build-id", &mut args)
             || read_flag("s", &mut args)
             || read_flag("no-relax", &mut args)
-            || read_flag("z", &mut args)
         {
             // ignore
         } else {
             if args.args[0].starts_with("-") {
                 fatal(&format!("unknown command line option: {}", args.arg));
             }
-            let _args = args.get();
             remaining.push(String::from(args.args[0]));
             args.args = &args.args[1..];
         }

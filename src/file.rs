@@ -27,10 +27,13 @@ pub fn must_new_file(file_name: &str) -> ElfFile {
 
 #[allow(dead_code)]
 fn open_library(file_path: &str) -> Option<ElfFile<'_>> {
-    let mut f = File::open(file_path).unwrap();
+    let f = File::open(file_path);
+    if f.is_err() {
+        return None
+    }
     let mut contents = Vec::new();
 
-    f.read_to_end(&mut contents).unwrap();
+    f.unwrap().read_to_end(&mut contents).unwrap();
     let contents = Box::new(contents);
 
     Some(ElfFile {
