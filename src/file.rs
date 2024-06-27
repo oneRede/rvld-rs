@@ -4,6 +4,7 @@ use std::io::prelude::*;
 use crate::context::Context;
 
 #[allow(dead_code)]
+#[repr(C, align(8))]
 pub struct ElfFile<'a> {
     pub name: &'a str,
     pub contents: &'static [u8],
@@ -29,7 +30,7 @@ pub fn must_new_file(file_name: &str) -> ElfFile {
 fn open_library(file_path: &str) -> Option<ElfFile<'_>> {
     let f = File::open(file_path);
     if f.is_err() {
-        return None
+        return None;
     }
     let mut contents = Vec::new();
 
@@ -53,9 +54,7 @@ pub fn find_library<'a>(ctx: &Context, name: &'a str) -> Option<ElfFile<'a>> {
             Some(f) => {
                 return Some(f);
             }
-            None => {
-                return None;
-            }
+            _ => {}
         }
     }
     None

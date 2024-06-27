@@ -40,7 +40,7 @@ pub fn new_input_file(file: ElfFile) -> *mut InputFile {
     if !check_magic(f.file.contents) {
         fatal("not an ELF file")
     }
-    let ehdr: Ehdr = read(f.file.contents);
+    let ehdr: Ehdr = read::<Ehdr>(f.file.contents);
     let contents = &f.file.contents[ehdr.sh_off as usize..];
     let shdr: Shdr = read(contents);
 

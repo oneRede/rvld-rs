@@ -21,6 +21,15 @@ pub fn assert(con: bool) {
 
 #[allow(dead_code)]
 pub fn read<T: Copy>(data: &[u8]) -> T {
+    let mut v: Vec<u8> = vec![];
+    for i in 0..mem::size_of::<T>() {
+        v.push(data[i])
+    }
+    return unsafe { v.align_to::<T>() }.1[0];
+}
+
+#[allow(dead_code)]
+pub fn read_v2<T: Copy>(data: &[u8]) -> T {
     return unsafe { *(data.as_ptr() as *const T) };
 }
 

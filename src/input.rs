@@ -13,7 +13,7 @@ use crate::utils::{fatal, remove_prefix};
 pub fn read_input_files(ctx: &mut Context, remaining: Vec<String>) {
     let ctx = UnsafeCell::new(ctx);
     let _ctx = ctx.get();
-    for arg in remaining {
+    for arg in &remaining {
         let (arg, ok) = remove_prefix(&arg, "-l");
         let arg = Box::leak(Box::new(arg));
         if ok {

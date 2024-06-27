@@ -12,11 +12,11 @@ pub fn read_archive_members(file: ElfFile) -> Vec<ElfFile> {
     let mut pos: usize = 8;
     let mut str_tab: &str = "";
     let mut elf_files: Vec<ElfFile> = vec![];
-    for _ in 0..(file.contents.len() - pos - 1) {
+    while  file.contents.len() - pos > 1 {
         if pos % 2 == 1 {
             pos += 1;
         }
-        let hdr: ArHdr = read(&file.contents[pos..]);
+        let hdr: ArHdr = read::<ArHdr>(&file.contents[pos..]);
         let data_start = pos + AR_HDR_SIZE;
         pos = data_start + hdr.get_size();
         let data_end = pos;
@@ -30,7 +30,7 @@ pub fn read_archive_members(file: ElfFile) -> Vec<ElfFile> {
         }
 
         elf_files.push(ElfFile {
-            name: hdr.read_name(str_tab),
+            name: Box::leak(Box::new(hdr.read_name(str_tab))),
             contents: contents,
             files: vec![&file as *const ElfFile],
         });

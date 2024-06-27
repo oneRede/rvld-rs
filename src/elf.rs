@@ -132,8 +132,7 @@ impl Ehdr {
 
 #[allow(dead_code)]
 #[repr(C)]
-#[derive(Clone, Copy)]
-#[derive(PartialEq, PartialOrd)]
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct Shdr {
     pub name: u32,
     pub shdr_type: u32,
@@ -241,21 +240,21 @@ fn binary_search(data: &[u8], sep: u8) -> Option<usize> {
 
 #[allow(dead_code)]
 #[repr(C)]
-#[derive(Clone, Copy)]
-pub struct ArHdr<'a> {
-    name: &'a [u8; 16],
-    date: &'a [u8; 12],
-    uid: &'a [u8; 6],
-    gid: &'a [u8; 6],
-    mode: &'a [u8; 8],
-    size: &'a [u8; 10],
-    fmag: &'a [u8; 2],
+#[derive(Debug, Clone, Copy)]
+pub struct ArHdr {
+    name: [u8; 16],
+    date: [u8; 12],
+    uid: [u8; 6],
+    gid: [u8; 6],
+    mode: [u8; 8],
+    size: [u8; 10],
+    fmag: [u8; 2],
 }
 
 #[allow(dead_code)]
-impl<'a> ArHdr<'a> {
+impl ArHdr {
     pub fn has_prefix(&self, s: &str) -> bool {
-        return s.starts_with(std::str::from_utf8(self.name).unwrap());
+        return std::str::from_utf8(&self.name).unwrap().starts_with(s);
     }
 
     pub fn is_str_tab(&self) -> bool {
@@ -267,17 +266,14 @@ impl<'a> ArHdr<'a> {
     }
 
     pub fn get_size(&self) -> usize {
-        let size = str::parse::<usize>(
-            std::str::from_utf8(self.size)
-                .unwrap()
-                .strip_suffix(" ")
-                .unwrap(),
-        )
-        .unwrap();
+        let ss = std::str::from_utf8(&self.size)
+            .unwrap()
+            .trim();
+        let size = str::parse::<usize>(ss).unwrap();
         size
     }
 
-    pub fn read_name(&self, str_tab: &'a str) -> &'a str {
+    pub fn read_name(&self, str_tab: &'static str) -> String {
         if unsafe {
             std::str::from_utf8(std::slice::from_raw_parts(
                 (self as *const ArHdr) as *const u8,
@@ -287,7 +283,7 @@ impl<'a> ArHdr<'a> {
             .starts_with("// ")
         } {
             let start = str::parse::<usize>(
-                std::str::from_utf8(self.size)
+                std::str::from_utf8(&self.size)
                     .unwrap()
                     .strip_suffix(" ")
                     .unwrap(),
@@ -295,10 +291,14 @@ impl<'a> ArHdr<'a> {
             .unwrap();
             let end = start + str_tab.rfind("/\n").unwrap();
 
-            return &str_tab[start..end];
+            return (&str_tab[start..end]).to_string();
         }
-        let end: usize = std::str::from_utf8(self.name).unwrap().rfind("\\").unwrap();
-        return std::str::from_utf8(&self.name[..end]).unwrap();
+        let _ss = std::str::from_utf8(&self.name).unwrap();
+        let end: usize = std::str::from_utf8(&self.name)
+            .unwrap()
+            .rfind(r"/")
+            .unwrap();
+        return std::str::from_utf8(&self.name[..end]).unwrap().to_string();
     }
 }
 

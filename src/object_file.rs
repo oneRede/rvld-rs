@@ -25,8 +25,9 @@ pub struct ObjectFile<'a> {
 }
 
 #[allow(dead_code)]
-pub fn new_object_file(elf_file: ElfFile, _is_alive: bool) -> ObjectFile {
+pub fn new_object_file(elf_file: ElfFile, is_alive: bool) -> ObjectFile {
     let input_file = new_input_file(elf_file);
+    unsafe { input_file.as_mut().unwrap().is_alive = is_alive };
     let object_file = ObjectFile {
         input_file: input_file,
         symtab_sec: None,
