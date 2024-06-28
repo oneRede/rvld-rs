@@ -33,6 +33,7 @@ use crate::{
 use context::Context;
 use file::must_new_file;
 use machine_type::MACHINE_TYPE_RISCV64;
+use passes::{bin_sections, compute_merged_sections_size, compute_section_sizes, create_synthetic_sections, scan_relocations, sort_output_sections};
 use utils::fatal;
 
 #[allow(dead_code)]
@@ -83,6 +84,13 @@ fn main() {
     read_input_files(&mut ctx, &remaining);
     resolve_symbols(&mut ctx);
     register_section_pieces(&mut ctx);
+    compute_merged_sections_size(&ctx);
+    create_synthetic_sections(&mut ctx);
+    bin_sections(&ctx);
+    // ctx.chunks = unsafe { ctx.chunks.unwrap().as_mut().unwrap().push(collect_output_sections(ctx)) };
+    scan_relocations(&mut ctx);
+    compute_section_sizes(&ctx);
+    sort_output_sections(&ctx);
 
     for obj in ctx.objs {
         if unsafe { obj.as_ref().unwrap().input_file.as_ref().unwrap().file.name }

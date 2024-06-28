@@ -145,7 +145,7 @@ fn set_output_section_offsets(ctx: *mut Context) -> u64 {
 }
 
 #[allow(dead_code)]
-pub fn bin_sections(ctx: Context) {
+pub fn bin_sections(ctx: &Context) {
     let mut group: Vec<*mut Vec<*mut InputSection>> = vec![];
     for _i in 0..unsafe { ctx.output_sections.as_ref().unwrap() }.len() {
         group.push(Box::leak(Box::new(vec![])))
@@ -186,7 +186,7 @@ pub fn collect_output_sections(ctx: Context) -> Vec<*mut Chunk> {
 }
 
 #[allow(dead_code)]
-pub fn compute_section_sizes(ctx: Context) {
+pub fn compute_section_sizes(ctx: &Context) {
     for osec in unsafe { ctx.output_sections.as_ref().unwrap() } {
         let mut offset = 0u64;
         let mut p2_align = 0u64;
@@ -212,7 +212,7 @@ pub fn compute_section_sizes(ctx: Context) {
 }
 
 #[allow(dead_code)]
-pub fn sort_output_sections(ctx: Context) {
+pub fn sort_output_sections(ctx: &Context) {
     let rank = |chunk: &Chunk| -> i32 {
         let ty = chunk.get_shdr().shdr_type;
         let flags = chunk.get_shdr().flags;
@@ -258,8 +258,8 @@ pub fn sort_output_sections(ctx: Context) {
 }
 
 #[allow(dead_code)]
-pub fn compute_merged_sections_size(ctx: Context) {
-    for osec in ctx.merged_sections {
+pub fn compute_merged_sections_size(ctx: &Context) {
+    for osec in ctx.merged_sections.clone() {
         unsafe { osec.as_mut().unwrap().assign_offsets() }
     }
 }
