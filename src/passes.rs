@@ -8,19 +8,13 @@ use crate::{
     object_file::ObjectFile,
     output_ehdr::OutputEhdr,
     symbol::{Symbol, NEEDS_GOT_TP},
-    utils::align_to,
+    utils::{align_to, remove_if},
 };
 
 #[allow(dead_code)]
 pub fn resolve_symbols(ctx: &mut Context) {
-    let mut marks: Vec<usize> = vec![];
     for file in &ctx.objs {
         unsafe { file.as_mut().unwrap().resolve_symbols() }
-        if unsafe { file.as_ref().unwrap().input_file.as_ref().unwrap().is_alive } {
-            marks.push(1);
-        } else {
-            marks.push(0);
-        }
     }
 
     mark_live_objects(ctx);
@@ -30,14 +24,10 @@ pub fn resolve_symbols(ctx: &mut Context) {
         }
     }
 
-    let _func = |file: &*mut ObjectFile| -> bool {
+    let func = |file: &*mut ObjectFile| -> bool {
         unsafe { file.as_ref().unwrap().input_file.as_ref().unwrap().is_alive }
     };
-    for i in 0..ctx.objs.len() {
-        if marks.get(i).unwrap() == &0 {
-            ctx.objs.remove(i);
-        }
-    }
+    ctx.objs = remove_if(ctx.objs.clone(), func);
 }
 
 #[allow(dead_code)]

@@ -8,10 +8,10 @@ use crate::object_file::{new_object_file, ObjectFile};
 use crate::utils::{fatal, remove_prefix};
 
 #[allow(dead_code)]
-pub fn read_input_files(mut ctx: &mut Context, remaining: Vec<String>) {
-    for arg in &remaining {
+pub fn read_input_files(mut ctx: &mut Context, remaining: &Vec<String>) {
+    for arg in remaining {
         let (arg, ok) = remove_prefix(&arg, "-l");
-        let arg = Box::leak(Box::new(arg));
+        let arg = Box::leak(Box::new(String::from(&arg)));
         if ok {
             let lib = find_library(&mut ctx, arg).unwrap();
             read_file(&mut ctx, lib)

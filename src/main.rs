@@ -80,7 +80,7 @@ fn main() {
         fatal("unknown emulation type");
     }
 
-    read_input_files(&mut ctx, remaining);
+    read_input_files(&mut ctx, &remaining);
     resolve_symbols(&mut ctx);
     register_section_pieces(&mut ctx);
 
