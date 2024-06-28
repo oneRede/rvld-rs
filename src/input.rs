@@ -1,5 +1,3 @@
-use std::cell::UnsafeCell;
-
 use crate::archive::read_archive_members;
 use crate::context::Context;
 use crate::file::{find_library, must_new_file, ElfFile};
@@ -10,19 +8,15 @@ use crate::object_file::{new_object_file, ObjectFile};
 use crate::utils::{fatal, remove_prefix};
 
 #[allow(dead_code)]
-pub fn read_input_files(ctx: &mut Context, remaining: Vec<String>) {
-    let ctx = UnsafeCell::new(ctx);
-    let _ctx = ctx.get();
+pub fn read_input_files(mut ctx: &mut Context, remaining: Vec<String>) {
     for arg in &remaining {
         let (arg, ok) = remove_prefix(&arg, "-l");
         let arg = Box::leak(Box::new(arg));
         if ok {
-            read_file(
-                unsafe { _ctx.as_mut().unwrap() },
-                find_library(unsafe { &*ctx.get() }, arg).unwrap(),
-            )
+            let lib = find_library(&mut ctx, arg).unwrap();
+            read_file(&mut ctx, lib)
         } else {
-            read_file(unsafe { _ctx.as_mut().unwrap() }, must_new_file(arg))
+            read_file(&mut ctx, must_new_file(arg))
         }
     }
 }
@@ -33,13 +27,16 @@ pub fn read_file<'a>(ctx: &mut Context<'a>, elf_file: ElfFile<'a>) {
     let emulation: u8 = ctx.args.emulation;
     match ft {
         FILE_TYPE_OBJECT => {
-            ctx.objs
-                .push(Box::leak(Box::new(create_object_file(emulation, elf_file, false))));
+            ctx.objs.push(Box::leak(Box::new(create_object_file(
+                emulation, elf_file, false,
+            ))));
         }
         FILE_TYPE_ARCHIVE => {
             for child in read_archive_members(elf_file) {
                 assert_eq!(get_file_type(child.contents), FILE_TYPE_OBJECT);
-                ctx.objs.push(Box::leak(Box::new(create_object_file(emulation, child, true))))
+                ctx.objs.push(Box::leak(Box::new(create_object_file(
+                    emulation, child, true,
+                ))))
             }
         }
         _ => fatal("unkown file type!"),
